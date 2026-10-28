@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useTransition, useMemo } from 'react';
 import type { WeddingData, VenueEvent } from '@/types/wedding';
-import { TEMPLATE_REGISTRY, TEMPLATE_METADATA } from '@/templates';
+import { TEMPLATES, getTemplateComponent } from '@/templates/registry';
 import { saveWeddingDraft } from '@/app/actions/wedding';
 import { signOut } from '@/app/actions/auth';
 import Link from 'next/link';
@@ -79,7 +79,7 @@ export default function StudioEditorClient({
 
   const isDirty = savedSnapshot !== JSON.stringify({ data: formData, template: templateId, slug });
 
-  const PreviewTemplate = TEMPLATE_REGISTRY[templateId] || TEMPLATE_REGISTRY['royal-rajwada'];
+  const PreviewTemplate = getTemplateComponent(templateId);
 
   // Publish-readiness checklist calculation
   const missingReadinessFields = useMemo(() => {
@@ -424,9 +424,9 @@ export default function StudioEditorClient({
             onChange={(e) => setTemplateId(e.target.value)}
             className="border border-slate-300 rounded-lg px-3 py-1.5 text-xs bg-white text-slate-800 font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-400"
           >
-            {TEMPLATE_METADATA.map((t) => (
+            {TEMPLATES.map((t) => (
               <option key={t.id} value={t.id}>
-                {t.name}
+                {t.name} ({t.category})
               </option>
             ))}
           </select>

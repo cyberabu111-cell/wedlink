@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
-import type { TemplateProps } from "./index";
+import type { WeddingTemplateProps } from "@/types/wedding";
 import type { VenueEvent } from "@/types/wedding";
 import { GoogleMapCard } from "@/components/shared/GoogleMapCard";
 import { getDirectionsUrl } from "@/utils/maps";
@@ -208,7 +208,7 @@ function ShareIcon() {
    BentoClay – Bento-style Mobile-first Islamic Wedding Template
    ═══════════════════════════════════════════════════════════════ */
 
-export default function BentoClay({ data, weddingId, isPreview }: TemplateProps) {
+export default function BentoClay({ data, weddingId = "wedding", isPreview }: WeddingTemplateProps) {
   const { couple, story, events, gallery, rsvpConfig, theme } = data;
 
   /* ── state ── */

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
-import type { TemplateProps } from "./index";
+import type { WeddingTemplateProps } from "@/types/wedding";
 import { GoogleMapCard } from "@/components/shared/GoogleMapCard";
 import { AddToCalendarButton } from "@/components/shared/AddToCalendarButton";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
@@ -23,7 +23,7 @@ function formatDate(dateStr?: string) {
   }
 }
 
-export default function RoyalRajwada({ data, weddingId, isPreview }: TemplateProps) {
+export default function RoyalRajwada({ data, weddingId = "wedding", isPreview }: WeddingTemplateProps) {
   const { couple, story, events, gallery, theme, rsvpConfig } = data;
   const primary = theme?.primaryColor || "#8B0000";
   const secondary = theme?.secondaryColor || "#D4AF37";

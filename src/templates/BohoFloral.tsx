@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
-import type { TemplateProps } from "./index";
+import type { WeddingTemplateProps } from "@/types/wedding";
 import { GoogleMapCard } from "@/components/shared/GoogleMapCard";
 import { AddToCalendarButton } from "@/components/shared/AddToCalendarButton";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
@@ -22,7 +22,7 @@ function formatDate(dateStr?: string) {
   }
 }
 
-export default function BohoFloral({ data, weddingId, isPreview }: TemplateProps) {
+export default function BohoFloral({ data, weddingId = "wedding", isPreview }: WeddingTemplateProps) {
   const { couple, story, events, gallery, theme, rsvpConfig } = data;
   const primary = theme?.primaryColor || "#c86d51";
   const secondary = theme?.secondaryColor || "#e29578";

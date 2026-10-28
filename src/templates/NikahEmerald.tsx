@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
-import type { TemplateProps } from "./index";
+import type { WeddingTemplateProps } from "@/types/wedding";
 import { GoogleMapCard } from "@/components/shared/GoogleMapCard";
 import { AddToCalendarButton } from "@/components/shared/AddToCalendarButton";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
@@ -52,7 +52,7 @@ function downloadICS(title: string, desc: string, location: string, dateStr?: st
   document.body.removeChild(link);
 }
 
-export default function NikahEmerald({ data, weddingId, isPreview }: TemplateProps) {
+export default function NikahEmerald({ data, weddingId = "wedding", isPreview }: WeddingTemplateProps) {
   const { couple, story, events, gallery, rsvpConfig } = data;
   const [blessingCount, setBlessingCount] = useState(0);
   const heartContainerRef = useRef<HTMLDivElement>(null);

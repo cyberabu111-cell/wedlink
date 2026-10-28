@@ -1,5 +1,5 @@
 import React from 'react';
-import type { WeddingData } from '@/types/wedding';
+import type { WeddingTemplateProps } from '@/types/wedding';
 import RoyalRajwada from './RoyalRajwada';
 import MinimalSage from './MinimalSage';
 import BohoFloral from './BohoFloral';
@@ -7,14 +7,9 @@ import NikahEmerald from './NikahEmerald';
 import BentoClay from './BentoClay';
 import { PUBLISH_AMOUNT_INR } from '@/lib/payments/validation';
 
-export interface TemplateProps {
-  data: WeddingData;
-  weddingId: string;
-  isPreview?: boolean;
-  isPaid?: boolean;
-}
+export type TemplateProps = WeddingTemplateProps;
 
-export const TEMPLATE_REGISTRY: Record<string, React.ComponentType<TemplateProps>> = {
+export const TEMPLATE_REGISTRY: Record<string, React.ComponentType<WeddingTemplateProps>> = {
   'royal-rajwada': RoyalRajwada,
   'minimal-sage': MinimalSage,
   'boho-floral': BohoFloral,
@@ -29,3 +24,5 @@ export const TEMPLATE_METADATA = [
   { id: 'nikah-emerald', name: 'Nikah Emerald (Kerala Royale)', price: PUBLISH_AMOUNT_INR, thumbnail: '/thumbs/emerald.webp' },
   { id: 'bento-clay', name: 'Bento Clay (Terracotta)', price: PUBLISH_AMOUNT_INR, thumbnail: '/thumbs/bento-clay.webp' },
 ];
+
+export * from './registry';

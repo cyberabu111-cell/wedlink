@@ -43,3 +43,11 @@ export interface WeddingData {
     whatsappNumber?: string;  // Optional: also send RSVP via WhatsApp
   };
 }
+
+export interface WeddingTemplateProps {
+  data: WeddingData;
+  isPreview?: boolean;
+  onRsvpSubmit?: (rsvp: any) => Promise<void>;
+  weddingId?: string;
+  isPaid?: boolean;
+}

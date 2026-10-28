@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { cache } from 'react';
-import { TEMPLATE_REGISTRY } from '@/templates';
+import { getTemplateComponent, isRegisteredTemplate } from '@/templates/registry';
 import { createAdminClient } from '@/lib/supabase/server';
 import { weddingDataSchema } from '@/lib/validation/wedding';
 
@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function PublicInvitationPage({ params }: PageProps) {
   const wedding = await publishedWedding((await params).slug);
   if (!wedding) notFound();
-  const Template = TEMPLATE_REGISTRY[wedding.template_id];
-  if (!Template) notFound();
+  if (!isRegisteredTemplate(wedding.template_id)) notFound();
+  const Template = getTemplateComponent(wedding.template_id);
   return <Template data={wedding.wedding_data} weddingId={wedding.id} isPaid isPreview={false} />;
 }
