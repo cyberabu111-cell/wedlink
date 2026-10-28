@@ -17,9 +17,16 @@ export interface TemplateFormInput {
   is_active?: boolean;
 }
 
+export interface LocalTemplateSummary {
+  id: string;
+  name: string;
+  category: "Traditional" | "Minimal" | "Modern" | "Floral" | "Luxury";
+  thumbnailUrl: string;
+}
+
 export interface AdminTemplatesOverview {
   dbTemplates: TemplateDbRow[];
-  localTemplates: typeof TEMPLATES;
+  localTemplates: LocalTemplateSummary[];
   unsyncedLocalKeys: string[];
 }
 
@@ -30,6 +37,13 @@ export async function getAdminTemplates(): Promise<AdminTemplatesOverview> {
   await requireAdmin();
   const adminClient = await createAdminClient();
 
+  const localTemplateSummaries: LocalTemplateSummary[] = TEMPLATES.map((t) => ({
+    id: t.id,
+    name: t.name,
+    category: t.category,
+    thumbnailUrl: t.thumbnailUrl,
+  }));
+
   const { data: dbTemplates, error } = await adminClient
     .from("templates")
     .select("*")
@@ -39,7 +53,7 @@ export async function getAdminTemplates(): Promise<AdminTemplatesOverview> {
     console.warn(`[admin-templates] Templates table query note: ${error.message}`);
     return {
       dbTemplates: [],
-      localTemplates: TEMPLATES,
+      localTemplates: localTemplateSummaries,
       unsyncedLocalKeys: TEMPLATES.map((t) => t.id),
     };
   }
@@ -49,7 +63,7 @@ export async function getAdminTemplates(): Promise<AdminTemplatesOverview> {
 
   return {
     dbTemplates: dbTemplates || [],
-    localTemplates: TEMPLATES,
+    localTemplates: localTemplateSummaries,
     unsyncedLocalKeys,
   };
 }

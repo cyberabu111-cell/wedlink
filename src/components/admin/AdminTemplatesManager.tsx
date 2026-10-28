@@ -16,7 +16,6 @@ import {
   Sparkles,
 } from "lucide-react";
 import type { TemplateDbRow } from "@/types/database";
-import type { TEMPLATES } from "@/templates/registry";
 import {
   createTemplate,
   updateTemplate,
@@ -24,11 +23,12 @@ import {
   toggleTemplateActive,
   syncLocalTemplatesToDatabase,
   type TemplateFormInput,
+  type LocalTemplateSummary,
 } from "@/app/actions/admin-templates";
 
 interface Props {
   initialTemplates: TemplateDbRow[];
-  localTemplates: typeof TEMPLATES;
+  localTemplates: LocalTemplateSummary[];
   unsyncedLocalKeys: string[];
 }
 
