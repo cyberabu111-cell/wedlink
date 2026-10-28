@@ -12,13 +12,22 @@ export default function LoginForm({
   next: string;
   callbackFailed: boolean;
 }) {
-  const [identifier, setIdentifier] = useState('');
-  const [password, setPassword] = useState('');
-  const [authMode, setAuthMode] = useState<'password' | 'otp'>('password');
+  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
+
+  // Sign In fields
+  const [signInIdentifier, setSignInIdentifier] = useState('');
+  const [signInPassword, setSignInPassword] = useState('');
+
+  // Sign Up fields
+  const [signUpFullName, setSignUpFullName] = useState('');
+  const [signUpEmail, setSignUpEmail] = useState('');
+  const [signUpPassword, setSignUpPassword] = useState('');
+  const [signUpConfirmPassword, setSignUpConfirmPassword] = useState('');
+
   const [busy, setBusy] = useState(false);
   const [googleBusy, setGoogleBusy] = useState(false);
   const [message, setMessage] = useState(
-    callbackFailed ? 'This sign-in link expired or could not be verified. Request a new one.' : ''
+    callbackFailed ? 'Authentication link or session could not be verified. Please sign in.' : ''
   );
 
   function resolveEmail(raw: string): string {
@@ -56,29 +65,30 @@ export default function LoginForm({
         setGoogleBusy(false);
       }
     } catch {
-      setMessage('Google sign-in is not configured yet. You can sign in using your email.');
+      setMessage('Google sign-in is not configured yet. You can sign in using your credentials.');
       setGoogleBusy(false);
     }
   }
 
-  async function handlePasswordSubmit(event: FormEvent) {
+  async function handleSignIn(event: FormEvent) {
     event.preventDefault();
     setBusy(true);
     setMessage('');
+
     try {
       const client = createClient();
-      const resolvedEmail = resolveEmail(identifier);
+      const resolvedEmail = resolveEmail(signInIdentifier);
 
       let { data, error } = await client.auth.signInWithPassword({
         email: resolvedEmail,
-        password,
+        password: signInPassword,
       });
 
       // Secondary fallback for admin aliases
-      if (error && (identifier.trim() === 'admin' || identifier.trim() === 'admin@124')) {
+      if (error && (signInIdentifier.trim() === 'admin' || signInIdentifier.trim() === 'admin@124')) {
         const fallback = await client.auth.signInWithPassword({
           email: 'admin@124.com',
-          password,
+          password: signInPassword,
         });
         if (!fallback.error) {
           data = fallback.data;
@@ -112,26 +122,68 @@ export default function LoginForm({
     }
   }
 
-  async function handleOtpSubmit(event: FormEvent) {
+  async function handleSignUp(event: FormEvent) {
     event.preventDefault();
     setBusy(true);
     setMessage('');
+
+    const cleanEmail = signUpEmail.trim();
+    if (!cleanEmail || !signUpPassword) {
+      setMessage('Email and password are required.');
+      setBusy(false);
+      return;
+    }
+
+    if (signUpPassword.length < 6) {
+      setMessage('Password must be at least 6 characters.');
+      setBusy(false);
+      return;
+    }
+
+    if (signUpPassword !== signUpConfirmPassword) {
+      setMessage('Passwords do not match.');
+      setBusy(false);
+      return;
+    }
+
     try {
       const client = createClient();
-      const resolvedEmail = resolveEmail(identifier);
-      const { error } = await client.auth.signInWithOtp({
-        email: resolvedEmail,
+      const { data, error } = await client.auth.signUp({
+        email: cleanEmail,
+        password: signUpPassword,
         options: {
+          data: {
+            full_name: signUpFullName.trim() || undefined,
+          },
           emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
         },
       });
+
       if (error) {
-        setMessage('Could not send a sign-in link. Check your email address and try again shortly.');
+        setMessage(error.message || 'Could not create account. Please try again.');
         return;
       }
-      setMessage('Check your email for a sign-in link. Open it in this browser to continue.');
-    } catch {
-      setMessage('Sign-in is not configured yet. You can still explore the invitation editor.');
+
+      // If Supabase immediately returns a session (auto-confirm enabled):
+      if (data?.session) {
+        const target = safeAuthNext(next) || '/studio/new';
+        window.location.href = target;
+        return;
+      }
+
+      // If email confirmation is required:
+      if (data?.user && !data.user.confirmed_at) {
+        setMessage('Account created! Check your email to confirm your account, then sign in.');
+        setMode('signin');
+        setSignInIdentifier(cleanEmail);
+        return;
+      }
+
+      setMessage('Account created successfully! Please sign in.');
+      setMode('signin');
+      setSignInIdentifier(cleanEmail);
+    } catch (err: any) {
+      setMessage(err?.message || 'Registration failed. Please try again.');
     } finally {
       setBusy(false);
     }
@@ -140,10 +192,14 @@ export default function LoginForm({
   return (
     <section className="account-card">
       <Link href="/" className="studio-brand">✳ everafter.</Link>
-      <h1>Your celebrations, in one place.</h1>
-      <p>Sign in or create an account to manage your wedding invitations.</p>
+      <h1>{mode === 'signin' ? 'Welcome back.' : 'Create an account.'}</h1>
+      <p>
+        {mode === 'signin'
+          ? 'Sign in to edit and manage your wedding invitations.'
+          : 'Sign up to design, customize, and publish your wedding invitations.'}
+      </p>
 
-      {/* Google Sign In Button */}
+      {/* Google OAuth Button */}
       <button
         type="button"
         disabled={busy || googleBusy}
@@ -160,95 +216,195 @@ export default function LoginForm({
       </button>
 
       <div className="account-divider">
-        <span>or sign in with credentials</span>
+        <span>or with credentials</span>
       </div>
 
-      {/* Sign-in Method Tabs */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
+      {/* Mode Switcher Tabs: Sign In / Sign Up */}
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
         <button
           type="button"
-          onClick={() => { setAuthMode('password'); setMessage(''); }}
+          onClick={() => { setMode('signin'); setMessage(''); }}
           style={{
             flex: 1,
-            padding: '8px 12px',
-            borderRadius: '8px',
-            fontSize: '13px',
+            padding: '10px 14px',
+            borderRadius: '10px',
+            fontSize: '14px',
             fontWeight: 600,
-            border: authMode === 'password' ? '1px solid #523d50' : '1px solid #e7dfe4',
-            background: authMode === 'password' ? '#523d50' : '#ffffff',
-            color: authMode === 'password' ? '#ffffff' : '#523d50',
+            border: mode === 'signin' ? '1px solid #523d50' : '1px solid #e7dfe4',
+            background: mode === 'signin' ? '#523d50' : '#ffffff',
+            color: mode === 'signin' ? '#ffffff' : '#523d50',
             cursor: 'pointer',
+            transition: 'all 0.15s ease',
           }}
         >
-          Password
+          Sign In
         </button>
         <button
           type="button"
-          onClick={() => { setAuthMode('otp'); setMessage(''); }}
+          onClick={() => { setMode('signup'); setMessage(''); }}
           style={{
             flex: 1,
-            padding: '8px 12px',
-            borderRadius: '8px',
-            fontSize: '13px',
+            padding: '10px 14px',
+            borderRadius: '10px',
+            fontSize: '14px',
             fontWeight: 600,
-            border: authMode === 'otp' ? '1px solid #523d50' : '1px solid #e7dfe4',
-            background: authMode === 'otp' ? '#523d50' : '#ffffff',
-            color: authMode === 'otp' ? '#ffffff' : '#523d50',
+            border: mode === 'signup' ? '1px solid #523d50' : '1px solid #e7dfe4',
+            background: mode === 'signup' ? '#523d50' : '#ffffff',
+            color: mode === 'signup' ? '#ffffff' : '#523d50',
             cursor: 'pointer',
+            transition: 'all 0.15s ease',
           }}
         >
-          Magic Link
+          Sign Up
         </button>
       </div>
 
-      {authMode === 'password' ? (
-        <form onSubmit={handlePasswordSubmit}>
-          <label htmlFor="account-identifier">Username or Email</label>
+      {/* SIGN IN FORM */}
+      {mode === 'signin' ? (
+        <form onSubmit={handleSignIn}>
+          <label htmlFor="signin-identifier">Username or Email</label>
           <input
-            id="account-identifier"
+            id="signin-identifier"
             type="text"
             required
             autoComplete="username"
-            placeholder="admin@wedlink.com or username"
-            value={identifier}
-            onChange={(e) => setIdentifier(e.target.value)}
+            placeholder="admin@124 or you@example.com"
+            value={signInIdentifier}
+            onChange={(e) => setSignInIdentifier(e.target.value)}
           />
 
-          <label htmlFor="account-password">Password</label>
+          <label htmlFor="signin-password">Password</label>
           <input
-            id="account-password"
+            id="signin-password"
             type="password"
             required
             autoComplete="current-password"
             placeholder="••••••••"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={signInPassword}
+            onChange={(e) => setSignInPassword(e.target.value)}
           />
 
           <button disabled={busy || googleBusy} className="account-primary">
-            {busy ? 'Signing in…' : 'Sign in'}
+            {busy ? 'Signing in…' : 'Sign In'}
           </button>
+
+          <p style={{ fontSize: '13px', textAlign: 'center', marginTop: '12px' }}>
+            Don&apos;t have an account?{' '}
+            <button
+              type="button"
+              onClick={() => { setMode('signup'); setMessage(''); }}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#523d50',
+                fontWeight: 600,
+                textDecoration: 'underline',
+                cursor: 'pointer',
+                padding: 0,
+              }}
+            >
+              Sign up
+            </button>
+          </p>
         </form>
       ) : (
-        <form onSubmit={handleOtpSubmit}>
-          <label htmlFor="account-email">Email address</label>
+        /* SIGN UP FORM */
+        <form onSubmit={handleSignUp}>
+          <label htmlFor="signup-name">Full Name (optional)</label>
           <input
-            id="account-email"
+            id="signup-name"
+            type="text"
+            autoComplete="name"
+            placeholder="e.g. Priya Sharma"
+            value={signUpFullName}
+            onChange={(e) => setSignUpFullName(e.target.value)}
+          />
+
+          <label htmlFor="signup-email">Email address</label>
+          <input
+            id="signup-email"
             type="email"
             required
             autoComplete="email"
             placeholder="you@example.com"
-            value={identifier}
-            onChange={(e) => setIdentifier(e.target.value)}
+            value={signUpEmail}
+            onChange={(e) => setSignUpEmail(e.target.value)}
           />
+
+          <label htmlFor="signup-password">Password</label>
+          <input
+            id="signup-password"
+            type="password"
+            required
+            minLength={6}
+            autoComplete="new-password"
+            placeholder="Minimum 6 characters"
+            value={signUpPassword}
+            onChange={(e) => setSignUpPassword(e.target.value)}
+          />
+
+          <label htmlFor="signup-confirm-password">Confirm Password</label>
+          <input
+            id="signup-confirm-password"
+            type="password"
+            required
+            minLength={6}
+            autoComplete="new-password"
+            placeholder="Re-enter your password"
+            value={signUpConfirmPassword}
+            onChange={(e) => setSignUpConfirmPassword(e.target.value)}
+          />
+
           <button disabled={busy || googleBusy} className="account-primary">
-            {busy ? 'Sending…' : 'Email me a sign-in link'}
+            {busy ? 'Creating account…' : 'Create Account'}
           </button>
+
+          <p style={{ fontSize: '13px', textAlign: 'center', marginTop: '12px' }}>
+            Already have an account?{' '}
+            <button
+              type="button"
+              onClick={() => { setMode('signin'); setMessage(''); }}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#523d50',
+                fontWeight: 600,
+                textDecoration: 'underline',
+                cursor: 'pointer',
+                padding: 0,
+              }}
+            >
+              Sign in
+            </button>
+          </p>
         </form>
       )}
 
-      {message && <p role="status" style={{ marginTop: '10px', color: message.includes('failed') || message.includes('Invalid') || message.includes('expired') ? '#b91c1c' : '#047857' }}>{message}</p>}
-      <Link href="/studio/new" style={{ marginTop: '14px', display: 'inline-block' }}>Explore the editor first →</Link>
+      {message && (
+        <p
+          role="status"
+          style={{
+            marginTop: '12px',
+            fontSize: '13px',
+            color:
+              message.includes('failed') ||
+              message.includes('Invalid') ||
+              message.includes('not match') ||
+              message.includes('required') ||
+              message.includes('Could not')
+                ? '#b91c1c'
+                : '#047857',
+          }}
+        >
+          {message}
+        </p>
+      )}
+
+      <div style={{ textAlign: 'center', marginTop: '14px' }}>
+        <Link href="/studio/new" style={{ fontSize: '13px' }}>
+          Explore the invitation editor first →
+        </Link>
+      </div>
     </section>
   );
 }
