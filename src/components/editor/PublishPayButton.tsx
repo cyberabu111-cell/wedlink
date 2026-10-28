@@ -70,7 +70,7 @@ export default function PublishPayButton({ weddingId, slug, isPaid, dirty, retur
   return <details className="publish-panel" open={returnedFromPayment || undefined}>
     <summary>Publish your invitation · ₹{PUBLISH_AMOUNT_INR.toLocaleString('en-IN')}</summary>
     <p>One payment. A clean, shareable link for this invitation, with any design.</p>
-    {weddingId === 'new' ? <p>Save your draft first. <Link href="/login?next=/studio/new">Sign in</Link> to keep your invitation.</p> :
+    {weddingId === 'new' ? <p>Click <strong>Save Draft</strong> above to save your invitation and unlock payment.</p> :
       <><form onSubmit={checkout}><label htmlFor="checkout-name">Your name</label>
         <input id="checkout-name" required autoComplete="name" maxLength={100} value={name} onChange={e => setName(e.target.value)} disabled={busy} />
         <label htmlFor="checkout-phone">Indian mobile number</label><input id="checkout-phone" type="tel" inputMode="tel" autoComplete="tel" placeholder="9876543210" required maxLength={13} value={phone} onChange={e => setPhone(e.target.value)} disabled={busy} />

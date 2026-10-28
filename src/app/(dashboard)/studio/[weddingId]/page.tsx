@@ -90,10 +90,11 @@ export default async function StudioPage({ params, searchParams }: PageProps) {
   let initialSlug = 'priya-weds-rahul';
   let isPaid = false;
 
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   if (weddingId && weddingId !== 'new') {
     if (!z.uuid().safeParse(weddingId).success) notFound();
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
     if (!user) redirect(`/login?next=/studio/${weddingId}`);
     const { data: wedding } = await supabase
       .from('weddings')
@@ -119,6 +120,7 @@ export default async function StudioPage({ params, searchParams }: PageProps) {
       weddingId={weddingId}
       isPaid={isPaid}
       returnedFromPayment={payment === 'return'}
+      userEmail={user?.email || null}
     />
   );
 }

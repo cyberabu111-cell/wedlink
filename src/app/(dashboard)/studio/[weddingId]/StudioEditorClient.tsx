@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState, useTransition } from 'react';
+import React, { useState, useEffect, useTransition } from 'react';
 import type { WeddingData, VenueEvent } from '@/types/wedding';
 import { TEMPLATE_REGISTRY, TEMPLATE_METADATA } from '@/templates';
 import { saveWeddingDraft } from '@/app/actions/wedding';
+import { signOut } from '@/app/actions/auth';
 import Link from 'next/link';
 import VenueLocationPicker from '@/components/editor/VenueLocationPicker';
 import { updateVenueText } from '@/utils/maps';
@@ -17,6 +18,7 @@ interface StudioEditorClientProps {
   weddingId: string;
   isPaid: boolean;
   returnedFromPayment?: boolean;
+  userEmail?: string | null;
 }
 
 type TabKey = 'couple' | 'story' | 'events' | 'gallery' | 'theme' | 'rsvp';
@@ -28,6 +30,7 @@ export default function StudioEditorClient({
   weddingId: initialWeddingId,
   isPaid: initialIsPaid,
   returnedFromPayment = false,
+  userEmail = null,
 }: StudioEditorClientProps) {
   const [formData, setFormData] = useState<WeddingData>(initialData);
   const [isPaid, setIsPaid] = useState(initialIsPaid);
@@ -45,6 +48,24 @@ export default function StudioEditorClient({
   const [isPending, startTransition] = useTransition();
 
   const PreviewTemplate = TEMPLATE_REGISTRY[templateId] || TEMPLATE_REGISTRY['royal-rajwada'];
+
+  // Restore draft if returning from login
+  useEffect(() => {
+    if (initialWeddingId === 'new') {
+      try {
+        const cached = localStorage.getItem('everafter_pending_draft');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed?.formData) setFormData(parsed.formData);
+          if (parsed?.templateId) setTemplateId(parsed.templateId);
+          if (parsed?.slug) setSlug(parsed.slug);
+          localStorage.removeItem('everafter_pending_draft');
+        }
+      } catch {
+        // ignore
+      }
+    }
+  }, [initialWeddingId]);
 
   // Updaters for nested state
   const updateCoupleField = (field: keyof WeddingData['couple'], value: string) => {
@@ -158,6 +179,21 @@ export default function StudioEditorClient({
   const handleSave = () => {
     setSaveStatus('saving');
     setStatusMessage('');
+
+    if (!userEmail) {
+      try {
+        localStorage.setItem('everafter_pending_draft', JSON.stringify({ formData, templateId, slug }));
+      } catch {
+        // ignore
+      }
+      setSaveStatus('error');
+      setStatusMessage('Please sign in to save your invitation. Redirecting to sign in...');
+      setTimeout(() => {
+        window.location.href = `/login?next=${encodeURIComponent(window.location.pathname)}`;
+      }, 1000);
+      return;
+    }
+
     startTransition(async () => {
       const res = await saveWeddingDraft({
         weddingId: currentWeddingId,
@@ -233,7 +269,24 @@ export default function StudioEditorClient({
         )}
 
         {/* Template Selector Bar */}
-        <div className="studio-account-links"><Link href="/studio">My invitations</Link><Link href="/login?next=/studio/new">Sign in</Link></div>
+        <div className="studio-account-links">
+          <Link href="/studio">My invitations</Link>
+          {userEmail ? (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#62555d' }}>
+              <span>Signed in as <strong style={{ color: '#2a1800' }}>{userEmail}</strong></span>
+              <span>·</span>
+              <form action={signOut} style={{ display: 'inline' }}>
+                <button type="submit" style={{ background: 'none', border: 'none', color: '#a32939', padding: 0, minHeight: 'auto', textDecoration: 'underline', fontSize: '12px' }}>
+                  Sign out
+                </button>
+              </form>
+            </span>
+          ) : (
+            <Link href={`/login?next=${encodeURIComponent(typeof window !== 'undefined' ? window.location.pathname : '/studio/new')}`} style={{ fontWeight: 650, color: '#663c51' }}>
+              Sign in to save →
+            </Link>
+          )}
+        </div>
         <PublishPayButton weddingId={currentWeddingId} slug={slug} isPaid={isPaid}
           dirty={savedSnapshot !== JSON.stringify({ data: formData, template: templateId, slug })}
           returnedFromPayment={returnedFromPayment} onPaid={setIsPaid} />
