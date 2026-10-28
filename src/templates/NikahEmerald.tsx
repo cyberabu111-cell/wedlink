@@ -296,6 +296,35 @@ export default function NikahEmerald({ data, weddingId, isPreview }: TemplatePro
         </div>
       </section>
 
+      
+      {/* SECTION: OUR STORY & MILESTONES (NIKAH) */}
+      {story?.content && (
+        <section className="px-4 py-8 flex flex-col items-center max-w-xl mx-auto">
+          <RevealOnScroll direction="up" className="w-full bg-white rounded-2xl p-6 shadow-sm border border-[#C5A059]/30 text-center">
+            <span className="text-xl">❦</span>
+            <h2 className="text-xl text-[#0F382A] font-serif font-bold mt-1">
+              {story.title || "Our Journey"}
+            </h2>
+            <p className="text-xs text-[#5a544b] leading-relaxed mt-3 whitespace-pre-line text-left md:text-center">
+              {story.content}
+            </p>
+            {story.milestones && story.milestones.length > 0 && (
+              <div className="mt-6 border-t border-[#C5A059]/20 pt-4 space-y-3 text-left">
+                {story.milestones.map((m, idx) => (
+                  <div key={idx} className="flex items-start gap-3 text-xs">
+                    <span className="font-bold text-[#775a19] min-w-[45px]">{m.year}</span>
+                    <div>
+                      <strong className="text-[#1C1A17]">{m.title}</strong>
+                      {m.description && <p className="text-[#5a544b] mt-0.5">{m.description}</p>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </RevealOnScroll>
+        </section>
+      )}
+
       {/* SECTION 4: CEREMONIES & CELEBRATIONS */}
       {events && events.length > 0 && (
         <section className="px-4 py-8 flex flex-col items-center max-w-xl mx-auto">
@@ -400,6 +429,25 @@ export default function NikahEmerald({ data, weddingId, isPreview }: TemplatePro
       </section>
 
       
+      
+      {/* SECTION: PHOTO GALLERY (NIKAH) */}
+      {gallery && gallery.length > 0 && (
+        <section className="px-4 py-8 flex flex-col items-center max-w-xl mx-auto">
+          <RevealOnScroll direction="up" className="w-full text-center">
+            <span className="text-[10px] uppercase tracking-widest text-[#775a19] font-semibold">Captured Moments</span>
+            <h2 className="text-2xl text-[#1C1A17] font-serif mt-1 font-bold">Photo Gallery</h2>
+            <div className="grid grid-cols-2 gap-3 mt-4">
+              {gallery.map((url, idx) => (
+                <div key={idx} className="aspect-square rounded-xl overflow-hidden shadow-sm border border-[#C5A059]/20 hover-lift transition-all">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={url} alt={`Memory ${idx + 1}`} className="w-full h-full object-cover" />
+                </div>
+              ))}
+            </div>
+          </RevealOnScroll>
+        </section>
+      )}
+
       {/* RSVP SECTION */}
       {rsvpConfig?.enabled && (
         <section className="px-4 py-8 flex flex-col items-center max-w-xl mx-auto text-center">

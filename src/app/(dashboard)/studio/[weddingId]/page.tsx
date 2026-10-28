@@ -4,6 +4,7 @@ import type { WeddingData } from '@/types/wedding';
 import StudioEditorClient from './StudioEditorClient';
 import { notFound, redirect } from 'next/navigation';
 import { z } from 'zod';
+import { TEMPLATE_REGISTRY } from '@/templates';
 
 interface PageProps {
   params: Promise<{ weddingId: string }>;
@@ -86,7 +87,7 @@ export default async function StudioPage({ params, searchParams }: PageProps) {
   const { weddingId } = await params;
   const { template, payment } = await searchParams;
   let initialData: WeddingData = SAMPLE_STARTER_DATA;
-  let initialTemplateId = template && ['royal-rajwada', 'minimal-sage', 'boho-floral', 'nikah-emerald'].includes(template) ? template : 'royal-rajwada';
+  let initialTemplateId = template && template in TEMPLATE_REGISTRY ? template : 'royal-rajwada';
   let initialSlug = 'priya-weds-rahul';
   let isPaid = false;
 

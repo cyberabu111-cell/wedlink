@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo, useRef, useCallback } from "react"
 import type { TemplateProps } from "./index";
 import type { VenueEvent } from "@/types/wedding";
 import { GoogleMapCard } from "@/components/shared/GoogleMapCard";
+import { getDirectionsUrl } from "@/utils/maps";
 import { AddToCalendarButton } from "@/components/shared/AddToCalendarButton";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 
@@ -322,17 +323,25 @@ export default function BentoClay({ data, weddingId, isPreview }: TemplateProps)
   const hashtag = couple.hashtag || defaultHashtag;
 
   const whatsappShareUrl = useMemo(() => {
+    const siteOrigin = typeof window !== "undefined" ? window.location.origin : "https://everafter.app";
+    const invitationPath = isPreview ? "/studio/preview" : `/${couple.hashtag?.replace(/^#/, "") || "our-wedding"}`;
+    const shareUrl = `${siteOrigin}${invitationPath}`;
     const text = encodeURIComponent(
-      `💌 You're invited to the wedding of ${couple.groomName || "the Groom"} & ${couple.brideName || "the Bride"} on ${formattedDate || "soon"}!\n\n${hashtag}\n\nView the invitation ➜ ${typeof window !== "undefined" ? window.location.href : ""}`
-    );
-    const phone = rsvpConfig?.whatsappNumber || "";
-    return `https://api.whatsapp.com/send?${phone ? `phone=${phone}&` : ""}text=${text}`;
-  }, [couple.groomName, couple.brideName, formattedDate, hashtag, rsvpConfig?.whatsappNumber]);
+      `💌 You're invited to the wedding of ${couple.groomName || "the Groom"} & ${couple.brideName || "the Bride"} on ${formattedDate || "our wedding day"}!
 
-  const firstEventMapUrl = events?.[0]?.googleMapsUrl || "#directions";
+${hashtag}
+
+View our wedding invitation: ${shareUrl}`
+    );
+    // General share: no preselected recipient phone so guests can share with their contacts
+    return `https://api.whatsapp.com/send?text=${text}`;
+  }, [couple.groomName, couple.brideName, formattedDate, hashtag, isPreview]);
+
+  const firstEventMapUrl = (events?.[0] ? getDirectionsUrl(events[0]) : null) || "#directions";
 
   return (
-    <div className="min-h-screen bg-[#faf9f7] text-[#1a1c1b] font-sans antialiased selection:bg-[#8a4b36]/20 selection:text-[#8a4b36] relative overflow-x-hidden">
+    <div className="min-h-screen bg-[#faf9f7] text-[#1a1c1b] antialiased selection:bg-[#8a4b36]/20 selection:text-[#8a4b36] relative overflow-x-hidden"
+      style={{ fontFamily: theme?.fontFamily === 'serif' ? 'Georgia, serif' : theme?.fontFamily === 'playfair' ? "'Playfair Display', Georgia, serif" : 'system-ui, -apple-system, sans-serif' }}>
       {/* ╔══════════════════════════════════════════════════════╗
           ║  1 · FIXED HEADER                                   ║
           ╚══════════════════════════════════════════════════════╝ */}

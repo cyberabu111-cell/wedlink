@@ -1,9 +1,11 @@
 import Link from "next/link";
 
 const designs = [
-  { id: "royal-rajwada", name: "Royal Rajwada", mood: "A little grandeur. A lot of love.", style: "royal", mark: "✧", names: "Priya & Rahul" },
-  { id: "minimal-sage", name: "Minimal Sage", mood: "For the beautifully understated.", style: "sage", mark: "❧", names: "Aditi & Arjun" },
-  { id: "boho-floral", name: "Boho Floral", mood: "Warm hearts. Wild romance.", style: "floral", mark: "✽", names: "Meera & Kabir" },
+  { id: "royal-rajwada", name: "Royal Rajwada", mood: "A little grandeur. A lot of love.", style: "royal", mark: "✧", names: "Priya & Rahul", tag: "Regal Heritage" },
+  { id: "minimal-sage", name: "Minimal Sage", mood: "For the beautifully understated.", style: "sage", mark: "❧", names: "Aditi & Arjun", tag: "Clean Botanical" },
+  { id: "boho-floral", name: "Boho Floral", mood: "Warm hearts. Wild romance.", style: "floral", mark: "✽", names: "Meera & Kabir", tag: "Rustic Romance" },
+  { id: "nikah-emerald", name: "Nikah Emerald", mood: "Traditional grace with sacred blessings.", style: "emerald", mark: "❦", names: "Zayd & Amina", tag: "Islamic & South Asian" },
+  { id: "bento-clay", name: "Bento Clay", mood: "Interactive bento with live countdown & maps.", style: "bento", mark: "⊞", names: "Rohan & Diya", tag: "Modern Interactive" },
 ];
 
 export default function Home() {
@@ -22,7 +24,7 @@ export default function Home() {
           <h1>Your love story.<br />An invitation<br /><em>to remember.</em></h1>
           <p className="hero-description">A beautiful little home for your big day. Choose a design, make it yours, and bring your favourite people together.</p>
           <div className="hero-actions"><Link href="/studio/new" className="primary-link">Create your invitation <span aria-hidden="true">↗</span></Link><a href="#designs" className="text-link">Explore designs ↓</a></div>
-          <p className="hero-note">Free to create & preview <span>·</span> Pay once when you publish</p>
+          <p className="hero-note">Free to create & preview <span>·</span> Just ₹1,499 one-time when you publish</p>
         </div>
         <div className="hero-art" aria-label="Example wedding invitation for Priya and Rahul">
           <span className="art-orbit orbit-one" /><span className="art-orbit orbit-two" />
@@ -41,7 +43,7 @@ export default function Home() {
       </section>
       <div className="home-ribbon"><span>Your story, beautifully told</span><span aria-hidden="true">✧</span><span>Every celebration, in one place</span><span aria-hidden="true">✧</span><span>Made to share with love</span></div>
       <section id="designs" className="design-section">
-        <div className="section-heading"><div><p className="eyebrow">The collection</p><h2>Find your kind of <em>beautiful.</em></h2></div><p>Three distinct styles.<br />One story that’s entirely yours.</p></div>
+        <div className="section-heading"><div><p className="eyebrow">The collection</p><h2>Find your kind of <em>beautiful.</em></h2></div><p>Five distinct designs.<br />One story that’s entirely yours.</p></div>
         <div className="design-grid">{designs.map((design, index) => (
           <Link href={`/studio/new?template=${design.id}`} className="design-card" key={design.id}>
             <div className={`design-art ${design.style}`}><div className="mini-invite"><span className="mini-mark" aria-hidden="true">{design.mark}</span><p>THE WEDDING OF</p><h3>{design.names}</h3><span className="mini-divider" /><p>TOGETHER, FOREVER & ALWAYS</p></div><span className="design-number">0{index + 1}</span></div>

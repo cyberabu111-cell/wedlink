@@ -106,3 +106,68 @@ test('templates do not render inert Active upon publish RSVP buttons', () => {
     assert.doesNotMatch(liveHtml, /<button[^>]*>Send RSVP<\/button>/, `Template ${id} live must not show dead Send RSVP button`);
   }
 });
+
+test('bento clay share does not preselect recipient phone and directions uses venue helper', () => {
+  const data = createEmptyWeddingData();
+  data.couple = {
+    brideName: 'Diya',
+    groomName: 'Rohan',
+    weddingDate: '2026-12-14',
+    coverPhotoUrl: '',
+    hashtag: '#RohanDiya',
+  };
+  data.events = [{
+    id: 'evt-1',
+    eventName: 'Reception',
+    date: '2026-12-14',
+    startTime: '18:00',
+    endTime: '22:00',
+    venueName: 'Taj Falaknuma',
+    venueAddress: 'Engine Bowli, Falaknuma, Hyderabad',
+    googleMapsUrl: '',
+  }];
+  data.rsvpConfig = {
+    enabled: true,
+    deadline: '2026-12-01',
+    askDietaryPreference: false,
+    whatsappNumber: '+919876543210',
+  };
+
+  const Bento = TEMPLATE_REGISTRY['bento-clay'];
+  const html = renderToStaticMarkup(React.createElement(Bento, { data, weddingId: 'test-wed', isPreview: true }));
+
+  // General share action must NOT bind phone= to the couple's RSVP phone
+  assert.match(html, /api\.whatsapp\.com\/send\?text=/);
+  assert.doesNotMatch(html, /api\.whatsapp\.com\/send\?phone=/);
+
+  // Directions must point to Google Maps directions for the venue address, not generic homepage
+  assert.match(html, /maps\/dir\/\?/);
+  assert.match(html, /Taj\+Falaknuma/);
+});
+
+test('nikah emerald renders custom story and photo gallery', () => {
+  const data = createEmptyWeddingData();
+  data.story = {
+    title: 'How Our Story Began',
+    content: 'We crossed paths during our university years.',
+    milestones: [{ year: '2022', title: 'First Encounter', description: 'Met at the library' }],
+  };
+  data.gallery = ['https://example.com/photo1.jpg', 'https://example.com/photo2.jpg'];
+
+  const Nikah = TEMPLATE_REGISTRY['nikah-emerald'];
+  const html = renderToStaticMarkup(React.createElement(Nikah, { data, weddingId: 'test-wed', isPreview: true }));
+
+  assert.match(html, /How Our Story Began/);
+  assert.match(html, /We crossed paths during our university years/);
+  assert.match(html, /First Encounter/);
+  assert.match(html, /https:\/\/example\.com\/photo1\.jpg/);
+});
+
+test('all 5 template IDs resolve in query parameter selection', () => {
+  const expectedTemplates = ['royal-rajwada', 'minimal-sage', 'boho-floral', 'nikah-emerald', 'bento-clay'];
+  for (const t of expectedTemplates) {
+    const selected = t in TEMPLATE_REGISTRY ? t : 'royal-rajwada';
+    assert.equal(selected, t, `Template query parameter ${t} must resolve to itself`);
+  }
+});
+

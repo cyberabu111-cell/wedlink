@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useTransition } from 'react';
+import React, { useState, useEffect, useTransition, useMemo } from 'react';
 import type { WeddingData, VenueEvent } from '@/types/wedding';
 import { TEMPLATE_REGISTRY, TEMPLATE_METADATA } from '@/templates';
 import { saveWeddingDraft } from '@/app/actions/wedding';
@@ -49,6 +49,26 @@ export default function StudioEditorClient({
   const isDirty = savedSnapshot !== JSON.stringify({ data: formData, template: templateId, slug });
 
   const PreviewTemplate = TEMPLATE_REGISTRY[templateId] || TEMPLATE_REGISTRY['royal-rajwada'];
+
+  // Publish-readiness checklist calculation
+  const missingReadinessFields = useMemo(() => {
+    const missing: { label: string; tab: TabKey }[] = [];
+    if (!formData.couple.brideName.trim()) missing.push({ label: "Bride's Name", tab: 'couple' });
+    if (!formData.couple.groomName.trim()) missing.push({ label: "Groom's Name", tab: 'couple' });
+    if (!formData.couple.weddingDate) missing.push({ label: "Wedding Date", tab: 'couple' });
+    if (formData.events.length === 0) {
+      missing.push({ label: "At least one ceremony event", tab: 'events' });
+    } else {
+      const first = formData.events[0];
+      if (!first.eventName.trim()) missing.push({ label: "Ceremony Name", tab: 'events' });
+      if (!first.date) missing.push({ label: "Ceremony Date", tab: 'events' });
+      if (!first.venueName.trim()) missing.push({ label: "Venue Name", tab: 'events' });
+    }
+    if (!slug.trim()) missing.push({ label: "URL Slug", tab: 'rsvp' });
+    return missing;
+  }, [formData, slug]);
+  const isReadyToPublish = missingReadinessFields.length === 0;
+
 
   // Restore draft if returning from login or reload (only for 'new' invitation drafts)
   useEffect(() => {
@@ -325,6 +345,43 @@ export default function StudioEditorClient({
           )}
         </div>
         
+        
+        {/* Publish Readiness Banner */}
+        <div className="studio-readiness-banner mx-5 my-2 p-3.5 rounded-xl border border-slate-200 bg-slate-50 text-xs">
+          <div className="flex items-center justify-between">
+            <span className="font-semibold text-slate-800 flex items-center gap-1.5">
+              {isReadyToPublish ? (
+                <>
+                  <span className="text-emerald-600">✓</span>
+                  <span>Ready to publish (₹1,499)</span>
+                </>
+              ) : (
+                <>
+                  <span className="text-amber-600">●</span>
+                  <span>{missingReadinessFields.length} essential {missingReadinessFields.length === 1 ? 'item' : 'items'} to complete</span>
+                </>
+              )}
+            </span>
+            <span className="text-slate-500 font-mono text-[11px]">
+              {6 - missingReadinessFields.length}/6 complete
+            </span>
+          </div>
+          {!isReadyToPublish && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {missingReadinessFields.map((item: { label: string; tab: TabKey }, idx: number) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setActiveTab(item.tab)}
+                  className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 transition-colors text-[11px]"
+                >
+                  + Add {item.label} →
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
         <PublishPayButton weddingId={currentWeddingId} slug={slug} isPaid={isPaid}
           dirty={isDirty}
           returnedFromPayment={returnedFromPayment} onPaid={setIsPaid} />
@@ -704,10 +761,7 @@ export default function StudioEditorClient({
                     <button
                       onClick={() => removeGalleryImage(idx)}
                       className="absolute top-2 right-2 p-1.5 rounded-full bg-red-600 text-white text-xs shadow"
-                      title="Delete photo"
-                    >
-                      ✕
-                    </button>
+                      title={`Remove photo ${idx + 1}`} aria-label={`Remove photo ${idx + 1}`}>✕</button>
                   </div>
                 ))}
               </div>

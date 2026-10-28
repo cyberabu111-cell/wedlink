@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..700;1,400..700&display=swap');
 @import "tailwindcss";
 
 :root { color-scheme: light; }
@@ -185,6 +186,12 @@ button:disabled { cursor: wait; opacity: .6; }
 .royal { background: #e8ddd3; --mini-bg: #672b35; --mini-ink: #e7d1a6; }
 .sage { background: #e2e7df; --mini-bg: #fafbf6; --mini-ink: #47604d; }
 .floral { background: #efdfd4; --mini-bg: #fff6e8; --mini-ink: #a15f47; }
+.emerald { background: #0f382a15; --mini-bg: #0f382a; --mini-ink: #f0e6d2; }
+.emerald .mini-invite { border-radius: 20px 20px 4px 4px; outline: 1px solid #c5a059; }
+.bento { background: #faf9f7; --mini-bg: #fff; --mini-ink: #8a4b36; }
+.bento .mini-invite { border-radius: 18px; outline: 1px solid #e7bea7; box-shadow: 0 8px 24px #8a4b3615; }
+.font-playfair { font-family: 'Playfair Display', Georgia, serif; }
+
 .mini-invite { width: 190px; height: 246px; background: var(--mini-bg); color: var(--mini-ink); text-align: center; padding: 24px 14px; outline: 1px solid currentColor; outline-offset: -9px; box-shadow: 0 10px 22px #382c3520; transition: transform .25s; }
 .sage .mini-invite { border-radius: 100px 100px 0 0; outline: none; }
 .floral .mini-invite { border-radius: 50% 50% 4px 4px; outline: none; }
