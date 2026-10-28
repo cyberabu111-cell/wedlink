@@ -322,3 +322,20 @@ button:disabled { cursor: wait; opacity: .6; }
 .payment-check { margin-top: 8px; font-size: 13px; text-decoration: underline; }
 .studio-account-links { display: flex; gap: 20px; padding: 0 24px; font-size: 12px; }
 .studio-account-links a { display: inline-flex; min-height: 44px; align-items: center; }
+
+/* ─── Compact studio UI on small phones (< 640px) ─── */
+@media (max-width: 639px) {
+  .studio-header { padding: 8px 14px; }
+  .studio-header h1 { display: none; }
+  .studio-brand { font-size: 14px; }
+  .studio-account-links { padding: 0 14px; gap: 12px; font-size: 11px; }
+  .studio-account-links a { min-height: 36px; }
+  .studio-design-picker { padding: 6px 14px; }
+  .studio-design-picker select { min-height: 36px; font-size: 13px; }
+  .studio-tabs { padding: 4px 10px; gap: 2px; }
+  .studio-tabs button { min-height: 36px; font-size: 10px; padding: 6px 3px; }
+  .mobile-view-switch { padding: 8px 12px max(8px, env(safe-area-inset-bottom)); }
+  .mobile-view-switch button { min-height: 40px; font-size: 13px; }
+  .publish-panel { margin: 6px 14px; padding: 10px 14px; }
+  .publish-panel summary { font-size: 13px; min-height: 24px; }
+}

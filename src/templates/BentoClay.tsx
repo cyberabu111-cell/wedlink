@@ -321,11 +321,11 @@ export default function BentoClay({ data, weddingId, isPreview }: TemplateProps)
   const firstEventMapUrl = events?.[0]?.googleMapsUrl || "#directions";
 
   return (
-    <div className="min-h-screen bg-[#faf9f7] text-[#1a1c1b] font-sans antialiased selection:bg-[#8a4b36]/20 selection:text-[#8a4b36] relative overflow-x-hidden pb-20">
+    <div className="min-h-screen bg-[#faf9f7] text-[#1a1c1b] font-sans antialiased selection:bg-[#8a4b36]/20 selection:text-[#8a4b36] relative overflow-x-hidden">
       {/* ╔══════════════════════════════════════════════════════╗
           ║  1 · FIXED HEADER                                   ║
           ╚══════════════════════════════════════════════════════╝ */}
-      <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3 bg-[#faf9f7]/80 backdrop-blur-md border-b border-[#86736d]/10">
+      <header className="sticky top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3 bg-[#faf9f7]/80 backdrop-blur-md border-b border-[#86736d]/10">
         <h1 className="text-sm font-serif font-bold tracking-widest text-[#8a4b36] uppercase">
           Invitation
         </h1>
@@ -345,9 +345,6 @@ export default function BentoClay({ data, weddingId, isPreview }: TemplateProps)
           </div>
         </div>
       </header>
-
-      {/* Spacer for fixed header */}
-      <div className="h-14" />
 
       {/* ╔══════════════════════════════════════════════════════╗
           ║  2 · STORY-STYLE HERO CARD                          ║
@@ -792,7 +789,7 @@ export default function BentoClay({ data, weddingId, isPreview }: TemplateProps)
       {/* ╔══════════════════════════════════════════════════════╗
           ║  10 · FIXED BOTTOM NAV BAR                          ║
           ╚══════════════════════════════════════════════════════╝ */}
-      <nav id="directions" className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1 bg-[#1a1c1b]/90 backdrop-blur-md rounded-full px-2 py-1.5 shadow-[0_8px_32px_rgba(0,0,0,0.25)] border border-white/10">
+      <nav id="directions" className="sticky bottom-4 mx-auto w-fit flex items-center gap-1 bg-[#1a1c1b]/90 backdrop-blur-md rounded-full px-2 py-1.5 shadow-[0_8px_32px_rgba(0,0,0,0.25)] border border-white/10 z-50">
         {/* Schedule tab */}
         <a
           href="#schedule"
