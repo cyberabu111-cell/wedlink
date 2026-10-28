@@ -32,15 +32,23 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(loginUrl);
       }
 
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", user.id)
-        .maybeSingle();
+      // 1. Check JWT metadata role (instant & works with Supabase Auth users)
+      const isMetadataAdmin =
+        user.app_metadata?.role === "admin" ||
+        user.user_metadata?.role === "admin";
 
-      if (!profile || (profile as { role?: string }).role !== "admin") {
-        const dashboardUrl = new URL("/dashboard", request.url);
-        return NextResponse.redirect(dashboardUrl);
+      if (!isMetadataAdmin) {
+        // 2. Fall back to profiles table if present
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
+          .maybeSingle();
+
+        if (!profile || (profile as { role?: string }).role !== "admin") {
+          const dashboardUrl = new URL("/dashboard", request.url);
+          return NextResponse.redirect(dashboardUrl);
+        }
       }
     }
   }

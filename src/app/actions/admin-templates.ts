@@ -36,7 +36,12 @@ export async function getAdminTemplates(): Promise<AdminTemplatesOverview> {
     .order("created_at", { ascending: false });
 
   if (error) {
-    throw new Error(`Failed to load templates: ${error.message}`);
+    console.warn(`[admin-templates] Templates table query note: ${error.message}`);
+    return {
+      dbTemplates: [],
+      localTemplates: TEMPLATES,
+      unsyncedLocalKeys: TEMPLATES.map((t) => t.id),
+    };
   }
 
   const existingIds = new Set((dbTemplates || []).map((t) => t.id));

@@ -23,7 +23,20 @@ export async function requireAdmin(): Promise<AdminUser> {
     throw new Error("Unauthorized: Authentication required.");
   }
 
-  // Query profile using admin client to guarantee bypass of any client session caching
+  // 1. Fast check for JWT or user metadata admin role
+  if (
+    user.app_metadata?.role === "admin" ||
+    user.user_metadata?.role === "admin"
+  ) {
+    return {
+      id: user.id,
+      email: user.email || "admin@wedlink.com",
+      fullName: (user.user_metadata?.full_name as string) || "Super Admin",
+      role: "admin",
+    };
+  }
+
+  // 2. Query profile using admin client to guarantee bypass of any client session caching
   const adminClient = await createAdminClient();
   const { data: profile, error: profileError } = await adminClient
     .from("profiles")

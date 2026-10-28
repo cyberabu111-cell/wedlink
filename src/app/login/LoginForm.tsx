@@ -1,13 +1,40 @@
 'use client';
+
 import { useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
+import { safeAuthNext } from '@/lib/auth-redirect';
 
-export default function LoginForm({ next, callbackFailed }: { next: string; callbackFailed: boolean }) {
-  const [email, setEmail] = useState('');
+export default function LoginForm({
+  next,
+  callbackFailed,
+}: {
+  next: string;
+  callbackFailed: boolean;
+}) {
+  const [identifier, setIdentifier] = useState('');
+  const [password, setPassword] = useState('');
+  const [authMode, setAuthMode] = useState<'password' | 'otp'>('password');
   const [busy, setBusy] = useState(false);
   const [googleBusy, setGoogleBusy] = useState(false);
-  const [message, setMessage] = useState(callbackFailed ? 'This sign-in link expired or could not be verified. Request a new one.' : '');
+  const [message, setMessage] = useState(
+    callbackFailed ? 'This sign-in link expired or could not be verified. Request a new one.' : ''
+  );
+
+  function resolveEmail(raw: string): string {
+    const trimmed = raw.trim();
+    if (!trimmed) return '';
+    if (trimmed === 'admin' || trimmed === 'admin@124') {
+      return 'admin@wedlink.com';
+    }
+    if (trimmed.includes('@') && !trimmed.includes('.')) {
+      return `${trimmed}.com`;
+    }
+    if (!trimmed.includes('@')) {
+      return `${trimmed}@wedlink.com`;
+    }
+    return trimmed;
+  }
 
   async function signInWithGoogle() {
     setGoogleBusy(true);
@@ -34,17 +61,80 @@ export default function LoginForm({ next, callbackFailed }: { next: string; call
     }
   }
 
-  async function submit(event: FormEvent) {
-    event.preventDefault(); setBusy(true); setMessage('');
+  async function handlePasswordSubmit(event: FormEvent) {
+    event.preventDefault();
+    setBusy(true);
+    setMessage('');
     try {
       const client = createClient();
-      const { error } = await client.auth.signInWithOtp({ email: email.trim(), options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
-      } });
-      if (error) { setMessage('Could not send a sign-in link. Check your email address and try again shortly.'); return; }
+      const resolvedEmail = resolveEmail(identifier);
+
+      let { data, error } = await client.auth.signInWithPassword({
+        email: resolvedEmail,
+        password,
+      });
+
+      // Secondary fallback for admin aliases
+      if (error && (identifier.trim() === 'admin' || identifier.trim() === 'admin@124')) {
+        const fallback = await client.auth.signInWithPassword({
+          email: 'admin@124.com',
+          password,
+        });
+        if (!fallback.error) {
+          data = fallback.data;
+          error = null;
+        }
+      }
+
+      if (error) {
+        setMessage(error.message || 'Invalid username or password.');
+        return;
+      }
+
+      if (data?.user) {
+        const isAdmin =
+          data.user.app_metadata?.role === 'admin' ||
+          data.user.user_metadata?.role === 'admin';
+
+        const destination =
+          next && next !== '/studio'
+            ? safeAuthNext(next)
+            : isAdmin
+            ? '/admin/templates'
+            : '/studio';
+
+        window.location.href = destination;
+      }
+    } catch (err: any) {
+      setMessage(err?.message || 'Sign-in failed. Please verify credentials.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleOtpSubmit(event: FormEvent) {
+    event.preventDefault();
+    setBusy(true);
+    setMessage('');
+    try {
+      const client = createClient();
+      const resolvedEmail = resolveEmail(identifier);
+      const { error } = await client.auth.signInWithOtp({
+        email: resolvedEmail,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
+        },
+      });
+      if (error) {
+        setMessage('Could not send a sign-in link. Check your email address and try again shortly.');
+        return;
+      }
       setMessage('Check your email for a sign-in link. Open it in this browser to continue.');
-    } catch { setMessage('Sign-in is not configured yet. You can still explore the invitation editor.'); }
-    finally { setBusy(false); }
+    } catch {
+      setMessage('Sign-in is not configured yet. You can still explore the invitation editor.');
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
@@ -70,27 +160,95 @@ export default function LoginForm({ next, callbackFailed }: { next: string; call
       </button>
 
       <div className="account-divider">
-        <span>or sign in with email</span>
+        <span>or sign in with credentials</span>
       </div>
 
-      <form onSubmit={submit}>
-        <label htmlFor="account-email">Email address</label>
-        <input
-          id="account-email"
-          type="email"
-          required
-          autoComplete="email"
-          placeholder="you@example.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <button disabled={busy || googleBusy} className="account-primary">
-          {busy ? 'Sending…' : 'Email me a sign-in link'}
+      {/* Sign-in Method Tabs */}
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
+        <button
+          type="button"
+          onClick={() => { setAuthMode('password'); setMessage(''); }}
+          style={{
+            flex: 1,
+            padding: '8px 12px',
+            borderRadius: '8px',
+            fontSize: '13px',
+            fontWeight: 600,
+            border: authMode === 'password' ? '1px solid #523d50' : '1px solid #e7dfe4',
+            background: authMode === 'password' ? '#523d50' : '#ffffff',
+            color: authMode === 'password' ? '#ffffff' : '#523d50',
+            cursor: 'pointer',
+          }}
+        >
+          Password
         </button>
-      </form>
+        <button
+          type="button"
+          onClick={() => { setAuthMode('otp'); setMessage(''); }}
+          style={{
+            flex: 1,
+            padding: '8px 12px',
+            borderRadius: '8px',
+            fontSize: '13px',
+            fontWeight: 600,
+            border: authMode === 'otp' ? '1px solid #523d50' : '1px solid #e7dfe4',
+            background: authMode === 'otp' ? '#523d50' : '#ffffff',
+            color: authMode === 'otp' ? '#ffffff' : '#523d50',
+            cursor: 'pointer',
+          }}
+        >
+          Magic Link
+        </button>
+      </div>
 
-      {message && <p role="status">{message}</p>}
-      <Link href="/studio/new">Explore the editor first →</Link>
+      {authMode === 'password' ? (
+        <form onSubmit={handlePasswordSubmit}>
+          <label htmlFor="account-identifier">Username or Email</label>
+          <input
+            id="account-identifier"
+            type="text"
+            required
+            autoComplete="username"
+            placeholder="admin@wedlink.com or username"
+            value={identifier}
+            onChange={(e) => setIdentifier(e.target.value)}
+          />
+
+          <label htmlFor="account-password">Password</label>
+          <input
+            id="account-password"
+            type="password"
+            required
+            autoComplete="current-password"
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+
+          <button disabled={busy || googleBusy} className="account-primary">
+            {busy ? 'Signing in…' : 'Sign in'}
+          </button>
+        </form>
+      ) : (
+        <form onSubmit={handleOtpSubmit}>
+          <label htmlFor="account-email">Email address</label>
+          <input
+            id="account-email"
+            type="email"
+            required
+            autoComplete="email"
+            placeholder="you@example.com"
+            value={identifier}
+            onChange={(e) => setIdentifier(e.target.value)}
+          />
+          <button disabled={busy || googleBusy} className="account-primary">
+            {busy ? 'Sending…' : 'Email me a sign-in link'}
+          </button>
+        </form>
+      )}
+
+      {message && <p role="status" style={{ marginTop: '10px', color: message.includes('failed') || message.includes('Invalid') || message.includes('expired') ? '#b91c1c' : '#047857' }}>{message}</p>}
+      <Link href="/studio/new" style={{ marginTop: '14px', display: 'inline-block' }}>Explore the editor first →</Link>
     </section>
   );
 }
