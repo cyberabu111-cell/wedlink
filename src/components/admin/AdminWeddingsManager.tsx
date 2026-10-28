@@ -135,6 +135,15 @@ export default function AdminWeddingsManager({ initialOverview }: Props) {
             View all invitations created by couples. Bypass Cashfree payment to publish any wedding URL for free with a single click.
           </p>
         </div>
+
+        <div className="flex items-center space-x-3">
+          <Link
+            href="/studio/new"
+            className="inline-flex items-center justify-center px-4 py-2.5 rounded-xl bg-slate-900 text-white font-semibold text-xs hover:bg-slate-800 transition-colors shadow-sm space-x-1.5"
+          >
+            <span>+ Create New Invitation</span>
+          </Link>
+        </div>
       </div>
 
       {actionMessage && (
