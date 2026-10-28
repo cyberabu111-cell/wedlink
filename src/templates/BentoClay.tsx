@@ -213,7 +213,7 @@ export default function BentoClay({ data, weddingId, isPreview }: TemplateProps)
 
   /* ── state ── */
   const [musicPlaying, setMusicPlaying] = useState(false);
-  const [blessingCount, setBlessingCount] = useState(142);
+  const [blessingCount, setBlessingCount] = useState(0);
   const [activeNav, setActiveNav] = useState<"schedule" | "directions" | "share">("schedule");
   const heartContainerRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -477,7 +477,11 @@ View our wedding invitation: ${shareUrl}`
               <span className="text-xl group-active:scale-125 transition-transform">❤</span>
             </button>
             <span className="text-[10px] text-[#d4e4ce] mt-2 font-sans font-medium">
-              <span className="font-bold text-white">{blessingCount}</span> duas
+              {blessingCount > 0 ? (
+                <><span className="font-bold text-white">{blessingCount}</span> {blessingCount === 1 ? "dua sent" : "duas sent"}</>
+              ) : (
+                <span className="font-medium text-white/90">Send Dua</span>
+              )}
             </span>
           </div>
         </RevealOnScroll>
@@ -802,6 +806,37 @@ View our wedding invitation: ${shareUrl}`
                 ))}
               </div>
             )}
+          </RevealOnScroll>
+        </section>
+      )}
+
+      {/* 9.5 · RSVP CARD */}
+      {rsvpConfig?.enabled && (
+        <section className="px-3 mt-6 max-w-lg mx-auto">
+          <RevealOnScroll direction="up" className="bg-white rounded-3xl p-6 shadow-[0_12px_32px_rgba(138,75,54,0.08)] border border-[#e7bea7]/40 text-center">
+            <span className="text-2xl">💌</span>
+            <h2 className="text-xl font-serif font-bold text-[#8a4b36] mt-2">Will You Join Us?</h2>
+            {rsvpConfig.deadline && (
+              <p className="text-xs uppercase tracking-wider text-[#86736d] mt-1 font-sans">
+                Kindly respond by {formatDate(rsvpConfig.deadline)}
+              </p>
+            )}
+            <div className="mt-4 flex flex-col items-center gap-2">
+              {rsvpConfig.whatsappNumber ? (
+                <a
+                  href={`https://wa.me/${rsvpConfig.whatsappNumber.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(`Hello! I would love to RSVP for ${couple.brideName} & ${couple.groomName}'s wedding!`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-6 py-2.5 rounded-full text-white text-xs font-sans font-semibold tracking-wide bg-[#8a4b36] hover:bg-[#723c2a] shadow-md transition-all duration-300"
+                >
+                  RSVP via WhatsApp
+                </a>
+              ) : isPreview ? (
+                <p className="text-xs text-[#86736d] font-sans">
+                  Add your WhatsApp number in the <strong>RSVP &amp; URL</strong> tab to enable guest responses.
+                </p>
+              ) : null}
+            </div>
           </RevealOnScroll>
         </section>
       )}

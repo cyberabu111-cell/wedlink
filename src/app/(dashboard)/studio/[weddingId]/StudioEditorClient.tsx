@@ -46,6 +46,37 @@ export default function StudioEditorClient({
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [statusMessage, setStatusMessage] = useState<string>('');
   const [isPending, startTransition] = useTransition();
+  const [lastRemoved, setLastRemoved] = useState<{
+    type: 'event' | 'milestone' | 'gallery';
+    data: any;
+    index: number;
+    description: string;
+  } | null>(null);
+
+  const handleUndo = () => {
+    if (!lastRemoved) return;
+    if (lastRemoved.type === 'event') {
+      setFormData(prev => {
+        const events = [...prev.events];
+        events.splice(lastRemoved.index, 0, lastRemoved.data);
+        return { ...prev, events };
+      });
+    } else if (lastRemoved.type === 'milestone') {
+      setFormData(prev => {
+        const milestones = [...(prev.story.milestones || [])];
+        milestones.splice(lastRemoved.index, 0, lastRemoved.data);
+        return { ...prev, story: { ...prev.story, milestones } };
+      });
+    } else if (lastRemoved.type === 'gallery') {
+      setFormData(prev => {
+        const gallery = [...prev.gallery];
+        gallery.splice(lastRemoved.index, 0, lastRemoved.data);
+        return { ...prev, gallery };
+      });
+    }
+    setLastRemoved(null);
+  };
+
   const isDirty = savedSnapshot !== JSON.stringify({ data: formData, template: templateId, slug });
 
   const PreviewTemplate = TEMPLATE_REGISTRY[templateId] || TEMPLATE_REGISTRY['royal-rajwada'];
@@ -428,6 +459,31 @@ export default function StudioEditorClient({
 
         {/* Scrollable Form Body */}
         <div className="studio-form space-y-6" key={activeTab}>
+
+          {/* Undo Recovery Toast */}
+          {lastRemoved && (
+            <div className="undo-recovery-banner p-3 rounded-lg bg-slate-900 text-white text-xs flex items-center justify-between shadow-md">
+              <span>{lastRemoved.description}</span>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleUndo}
+                  className="font-semibold text-amber-300 hover:text-amber-200 underline"
+                >
+                  Undo ↩
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLastRemoved(null)}
+                  className="text-slate-400 hover:text-white"
+                  aria-label="Dismiss undo notification"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+          )}
+
           <div className="section-intro"><p className="eyebrow">Your invitation · {['couple', 'story', 'events', 'gallery', 'theme', 'rsvp'].indexOf(activeTab) + 1} of 6</p><h2>{({ couple: 'It starts with you two.', story: 'Every love has a story.', events: 'Let the celebrations begin.', gallery: 'Moments worth keeping.', theme: 'Set the mood.', rsvp: 'Bring your people together.' })[activeTab]}</h2><p>Make it personal. Your preview updates as you go.</p></div>
           {/* TAB: COUPLE DETAILS */}
           {activeTab === 'couple' && (

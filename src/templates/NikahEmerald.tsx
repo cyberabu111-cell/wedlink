@@ -54,7 +54,7 @@ function downloadICS(title: string, desc: string, location: string, dateStr?: st
 
 export default function NikahEmerald({ data, weddingId, isPreview }: TemplateProps) {
   const { couple, story, events, gallery, rsvpConfig } = data;
-  const [blessingCount, setBlessingCount] = useState(142);
+  const [blessingCount, setBlessingCount] = useState(0);
   const heartContainerRef = useRef<HTMLDivElement>(null);
 
   // Live countdown timer state
@@ -422,8 +422,14 @@ export default function NikahEmerald({ data, weddingId, isPreview }: TemplatePro
 
           {/* Dynamic Counter Badge */}
           <div className="inline-flex items-center gap-1.5 mt-4 text-[#0F382A] text-xs bg-[#FAF5EC] border border-[#C5A059]/30 px-4 py-1.5 rounded-full shadow-sm hover-lift">
-            <span className="font-bold text-[#775a19]">{blessingCount}</span>
-            <span className="opacity-90">Warm Heart Blessings Received</span>
+            {blessingCount > 0 ? (
+              <>
+                <span className="font-bold text-[#775a19]">{blessingCount}</span>
+                <span className="opacity-90">{blessingCount === 1 ? "Heartfelt Blessing Sent" : "Heartfelt Blessings Sent"}</span>
+              </>
+            ) : (
+              <span className="opacity-90 font-medium">Tap above to offer your blessings</span>
+            )}
           </div>
         </RevealOnScroll>
       </section>

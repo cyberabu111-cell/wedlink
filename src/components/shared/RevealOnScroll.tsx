@@ -23,17 +23,27 @@ export function RevealOnScroll({
   const domRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // If IntersectionObserver is not supported, reveal immediately
-    if (typeof window === "undefined" || !("IntersectionObserver" in window)) {
+    // If reduced motion is preferred or IntersectionObserver is not supported, reveal immediately
+    if (
+      typeof window === "undefined" ||
+      !("IntersectionObserver" in window) ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
       setIsVisible(true);
       return;
     }
+
+    // Safety timeout: guaranteed revelation even under aggressive throttling or network delays
+    const fallbackTimer = setTimeout(() => {
+      setIsVisible(true);
+    }, 1200);
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             setIsVisible(true);
+            clearTimeout(fallbackTimer);
             if (domRef.current) {
               observer.unobserve(domRef.current);
             }
@@ -42,7 +52,7 @@ export function RevealOnScroll({
       },
       {
         threshold,
-        rootMargin: "0px 0px -40px 0px",
+        rootMargin: "0px 0px -20px 0px",
       }
     );
 
@@ -52,6 +62,7 @@ export function RevealOnScroll({
     }
 
     return () => {
+      clearTimeout(fallbackTimer);
       if (currentElem) {
         observer.unobserve(currentElem);
       }
@@ -62,11 +73,11 @@ export function RevealOnScroll({
     if (isVisible) return "none";
     switch (direction) {
       case "up":
-        return "translateY(24px)";
+        return "translateY(20px)";
       case "down":
-        return "translateY(-20px)";
+        return "translateY(-16px)";
       case "scale":
-        return "scale(0.95)";
+        return "scale(0.97)";
       case "none":
       default:
         return "none";
@@ -76,12 +87,12 @@ export function RevealOnScroll({
   return (
     <div
       ref={domRef}
-      className={className}
+      className={`reveal-element ${className}`}
       style={{
         opacity: isVisible ? 1 : 0,
         transform: getTransform(),
         transition: `opacity ${duration}ms cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms, transform ${duration}ms cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms`,
-        willChange: "opacity, transform",
+        willChange: isVisible ? "auto" : "opacity, transform",
       }}
     >
       {children}
