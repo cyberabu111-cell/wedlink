@@ -11,7 +11,10 @@ export default function Home() {
     <main className="home-page">
       <header className="home-nav">
         <Link href="/" className="brand"><span aria-hidden="true">✳</span> everafter<span className="brand-dot">.</span></Link>
-        <Link href="/studio/new" className="nav-create">Open studio <span aria-hidden="true">↗</span></Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '18px' }}>
+          <Link href="/login" style={{ fontSize: '13px', fontWeight: 600, color: '#663c51', textDecoration: 'none' }}>Sign in</Link>
+          <Link href="/studio/new" className="nav-create">Open studio <span aria-hidden="true">↗</span></Link>
+        </div>
       </header>
       <section className="home-hero">
         <div className="hero-copy">
