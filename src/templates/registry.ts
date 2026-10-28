@@ -101,6 +101,16 @@ export const TEMPLATES: TemplateDefinition[] = [
       ssr: true,
     }),
   },
+  {
+    id: "malabar-royal-gold",
+    name: "Malabar Royal Gold",
+    category: "Luxury",
+    thumbnailUrl: "/thumbs/malabar-gold.webp",
+    component: dynamic(() => import("./templates/MalabarRoyalGold"), {
+      loading: () => TemplateLoadingFallback(),
+      ssr: true,
+    }),
+  },
 ];
 
 export const TEMPLATE_REGISTRY: Record<string, TemplateDefinition> = TEMPLATES.reduce(

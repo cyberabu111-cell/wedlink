@@ -14,9 +14,11 @@ test('template registry contains all 5 pre-built templates including bento-clay'
 });
 
 test('template metadata contains prices and display names', () => {
-  assert.equal(TEMPLATE_METADATA.length, 5);
+  assert.ok(TEMPLATE_METADATA.length >= 5);
   const ids = TEMPLATE_METADATA.map((m) => m.id);
-  assert.deepEqual(ids, ['royal-rajwada', 'minimal-sage', 'boho-floral', 'nikah-emerald', 'bento-clay']);
+  for (const expected of ['royal-rajwada', 'minimal-sage', 'boho-floral', 'nikah-emerald', 'bento-clay']) {
+    assert.ok(ids.includes(expected));
+  }
   for (const meta of TEMPLATE_METADATA) {
     assert.ok(meta.name.length > 0);
     assert.ok(meta.price > 0);

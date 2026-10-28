@@ -5,6 +5,7 @@ import MinimalSage from './MinimalSage';
 import BohoFloral from './BohoFloral';
 import NikahEmerald from './NikahEmerald';
 import BentoClay from './BentoClay';
+import MalabarRoyalGold from './MalabarRoyalGold';
 import { PUBLISH_AMOUNT_INR } from '@/lib/payments/validation';
 
 export type TemplateProps = WeddingTemplateProps;
@@ -15,6 +16,7 @@ export const TEMPLATE_REGISTRY: Record<string, React.ComponentType<WeddingTempla
   'boho-floral': BohoFloral,
   'nikah-emerald': NikahEmerald,
   'bento-clay': BentoClay,
+  'malabar-royal-gold': MalabarRoyalGold,
 };
 
 export const TEMPLATE_METADATA = [
@@ -23,6 +25,7 @@ export const TEMPLATE_METADATA = [
   { id: 'boho-floral', name: 'Boho Floral', price: PUBLISH_AMOUNT_INR, thumbnail: '/thumbs/boho.webp' },
   { id: 'nikah-emerald', name: 'Nikah Emerald (Kerala Royale)', price: PUBLISH_AMOUNT_INR, thumbnail: '/thumbs/emerald.webp' },
   { id: 'bento-clay', name: 'Bento Clay (Terracotta)', price: PUBLISH_AMOUNT_INR, thumbnail: '/thumbs/bento-clay.webp' },
+  { id: 'malabar-royal-gold', name: 'Malabar Royal Gold', price: PUBLISH_AMOUNT_INR, thumbnail: '/thumbs/malabar-gold.webp' },
 ];
 
 export * from './registry';
