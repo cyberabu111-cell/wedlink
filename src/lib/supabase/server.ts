@@ -1,18 +1,15 @@
 import "server-only";
 import { createServerClient } from "@supabase/ssr";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import type { Database } from "@/types/database";
 import { getSupabasePublicEnv } from "./env";
 
 /** For Route Handlers, Server Actions, and Server Components. */
-export async function createClient(useAdminIfUnauthenticated = true) {
+export async function createClient() {
   const { url, publishableKey } = getSupabasePublicEnv();
   const cookieStore = await cookies();
-  const hasAuthCookie = cookieStore.getAll().some((c) => c.name.includes("auth") || c.name.includes("token") || c.name.startsWith("sb-"));
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const key = (!hasAuthCookie && serviceKey && useAdminIfUnauthenticated) ? serviceKey : publishableKey;
-
-  return createServerClient<Database>(url, key, {
+  return createServerClient<Database>(url, publishableKey, {
     cookies: {
       getAll: () => cookieStore.getAll(),
       setAll: (values) => {
@@ -30,12 +27,11 @@ export async function createClient(useAdminIfUnauthenticated = true) {
 
 /** Explicit service-role client for public invitation queries and administrative actions. */
 export async function createAdminClient() {
-  const { url, publishableKey } = getSupabasePublicEnv();
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || publishableKey;
-  return createServerClient<Database>(url, serviceKey, {
-    cookies: {
-      getAll: () => [],
-      setAll: () => {},
-    },
+  const { url } = getSupabasePublicEnv();
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceKey) throw new Error("Server database credentials are not configured.");
+  return createSupabaseClient<Database>(url, serviceKey, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+    global: { fetch: (input, init) => fetch(input, { ...init, cache: "no-store" }) },
   });
 }

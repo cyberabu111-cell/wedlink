@@ -22,7 +22,11 @@ export default function VenueLocationPicker({ onSelectVenue, locationRevision }:
   const [message, setMessage] = useState("");
 
   useEffect(() => { onSelectRef.current = onSelectVenue; }, [onSelectVenue]);
-  useEffect(() => { requestRef.current += 1; }, [locationRevision]);
+  useEffect(() => {
+    requestRef.current += 1;
+    setStatus((current) => current === "selecting" ? "ready" : current);
+    setMessage((current) => current === "Getting venue details…" ? "" : current);
+  }, [locationRevision]);
 
   useEffect(() => {
     if (!active || !apiKey || !hostRef.current) return;

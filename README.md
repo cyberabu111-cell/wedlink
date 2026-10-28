@@ -1,67 +1,50 @@
-# Wedding SaaS · Module 01
+# Everafter — Wedding Invitation SaaS
 
-Standard Next.js 15 App Router + TypeScript, prepared for deployment outside ChatGPT Sites.
-This package implements the foundation only. No live Supabase database has been modified and no hosting deployment has been created.
+Next.js App Router + TypeScript + Supabase, with structured invitation data, four coded React designs, a mobile-first editor, Google Maps/calendar helpers and Cashfree checkout. This repository implements Modules 01–04 locally. Credentials, remote migration and live integration acceptance remain deferred.
 
 ## Run locally
 
-Use Node.js 22 LTS and npm. Extract this archive and open the `wedding-saas` folder in VS Code.
+Use Node.js 22 or later. From this directory:
 
-```bash
+```powershell
 npm ci
 npm run dev
 ```
 
-Open http://localhost:3000. The development landing page works without API keys. It is not a completed customer-facing SaaS.
+Open http://localhost:3000. `/studio/new` previews sample data without keys. `/login` signs in with an email link when Supabase is configured; `/studio` lists your saved invitations. Saving requires an account. Public `/{slug}` links require verified payment.
 
-## Connect Supabase
+## Configure when ready
 
-1. Create or select a Supabase **development** project. This migration is intended for a fresh database, not for tables already created from the original blueprint.
-2. Open `supabase/migrations/202610270001_foundation.sql`, copy its complete contents into the Supabase SQL Editor and run it once. It runs in a transaction; existing conflicting tables cause it to fail rather than be overwritten.
-3. Copy `.env.example` to `.env.local`. Add the project URL and publishable key from your Supabase project. Do not commit `.env.local`.
-4. Keep `SUPABASE_SERVICE_ROLE_KEY` empty for now. No Module 01 page requires it. Later payment/RSVP server routes will need server-only credentials. Never put this key into a browser variable or share it in chat.
-5. Restart the development server after changing environment variables.
+Copy `.env.example` to `.env.local` without overwriting an existing configuration. Fill values privately; do not commit or paste secret keys. Apply `supabase/migrations/*.sql` in filename order to a fresh development database; on an existing project apply only migrations not already applied. Configure Supabase email delivery and allowed `/auth/callback` URLs.
 
-There is no sign-in flow in this module. The browser client and the server client are connection utilities only. `src/lib/supabase/server.ts` is for Server Actions and Route Handlers, where cookies can be written. Before adding protected Server Component pages, implement session refresh with Next.js 15 `middleware.ts`, an appropriate read-only server-client wrapper and no-store handling for authenticated responses. Always verify the user server-side.
+The Google browser key is optional for manual venue entry and directions/calendar links. Cashfree checkout needs server credentials, the service-role database key, a canonical app URL and an allowed HTTPS domain reachable by its webhook service. Use separate Supabase projects and Cashfree environments for development and production. Sandbox purchases unlock development invitations and must not be migrated as real purchases.
 
-## Files
+Detailed setup and tests are in the module documents:
 
-| Path | Purpose |
-| --- | --- |
-| `src/types/wedding.ts` | Exact interfaces copied from the supplied blueprint |
-| `src/types/database.ts` | Database row types and restricted owner write types |
-| `src/lib/validation/wedding.ts` | Zod draft validation with compile-time interface compatibility checks |
-| `src/lib/wedding-defaults.ts` | Fresh, fully shaped blank invitation JSON |
-| `src/lib/supabase/` | Environment validation and typed client utilities |
-| `supabase/migrations/202610270001_foundation.sql` | Tables, constraints, indexes, grants, RLS and timestamp trigger |
-| `tests/` | Validation and PostgreSQL permission tests |
-| `docs/01_architecture_and_database.md` | Current Module 01 implementation reference and decisions |
-| `docs/01_original_blueprint.md` | Unmodified uploaded specification |
-| `src/app/` | Runnable development page and shared styles |
+1. [Architecture and database](docs/01_architecture_and_database.md)
+2. [Template engine and editor](docs/02_template_engine_and_editor.md)
+3. [Maps and calendar](docs/03_maps_and_calendar_integrations.md)
+4. [Cashfree integration and authorization](docs/04_cashfree_payment_integration.md)
 
 ## Verify
 
-```bash
+```powershell
 npm run typecheck
 npm test
+# Separate build output avoids replacing the running development server's cache.
+$env:NEXT_BUILD_DIR='.next-verify'
 npm run build
+Remove-Item Env:NEXT_BUILD_DIR
 ```
 
-The database test executes the actual migration in PGlite (embedded PostgreSQL) with a minimal Supabase auth/role shim. It tests tenant isolation, protected payment fields, owner write permissions, private checkout-session fields and constraints. This is not a live Supabase integration test. Supabase Auth cookies, REST access, Storage, browser rendering and deployment still require verification in the target environment.
+17 tests cover data validation, tenant permissions, all template renders, map/calendar behavior, signature verification and actual payment SQL transactions in embedded PostgreSQL. TypeScript and production build pass. Provider/browser end-to-end purchases still need configured test accounts and sandbox keys. No live database was modified and no real payment was made.
 
-## Deployment preparation
+## Current boundaries
 
-This is a standard Next.js project. On a Next.js host such as Vercel, import the repository, choose the `wedding-saas` directory as the project root if it is nested, use the Next.js framework preset and `npm run build`, and set the public Supabase environment variables before building. A Node.js host can run `npm run build` followed by `npm start`.
+- One-time publication is ₹1,499 INR per invitation, independent of design. The server owns the price. A browser callback never marks payment complete.
+- Templates are coded components in `src/templates`; there is no arbitrary HTML/code upload or admin template dashboard.
+- Photo/audio fields currently accept URLs. Managed uploads are not implemented.
+- WhatsApp RSVP links work; the alternative online RSVP buttons are not connected to the RSVP table yet.
+- Refund/revocation operations, monitoring and production deployment remain follow-up work.
 
-Do not use static export for the complete SaaS: future dynamic invitations, secure server APIs and webhook handlers require server execution. Keep this foundation deployment private while modules are being built. Real publishing, payments and public invitation links are not implemented yet.
-
-## Next step within Module 01
-
-Apply the migration to the development Supabase project, configure the two public environment values and confirm the tables and RLS policies in that project. Then verify access with two real authenticated test accounts before moving to Module 02.
-
-## References consulted
-
-- Next.js installation: https://nextjs.org/docs/app/getting-started/installation
-- Supabase column privileges: https://supabase.com/docs/guides/database/postgres/column-level-security
-- Supabase SSR clients: https://supabase.com/docs/guides/auth/server-side/creating-a-client
-- Supabase auth caching: https://supabase.com/docs/guides/auth/server-side/advanced-guide
+Deploy as a server-rendered Next.js application, not a static export. Keep secrets server-only and verify the complete sandbox flow in Module 04 before accepting real payments.

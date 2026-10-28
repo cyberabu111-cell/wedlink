@@ -2,6 +2,9 @@
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import type { TemplateProps } from "./index";
+import { GoogleMapCard } from "@/components/shared/GoogleMapCard";
+import { AddToCalendarButton } from "@/components/shared/AddToCalendarButton";
+import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 
 function formatDate(dateStr?: string) {
   if (!dateStr) return "";
@@ -48,7 +51,7 @@ function downloadICS(title: string, desc: string, location: string, dateStr?: st
   document.body.removeChild(link);
 }
 
-export default function NikahEmerald({ data }: TemplateProps) {
+export default function NikahEmerald({ data, weddingId, isPreview }: TemplateProps) {
   const { couple, story, events, gallery, rsvpConfig } = data;
   const [blessingCount, setBlessingCount] = useState(142);
   const heartContainerRef = useRef<HTMLDivElement>(null);
@@ -130,9 +133,9 @@ export default function NikahEmerald({ data }: TemplateProps) {
       </div>
 
       {/* SECTION 1: HERO & INVOCATION */}
-      <section className="flex flex-col items-center px-4 pt-10 pb-12 text-center relative max-w-xl mx-auto">
+      <section className="flex flex-col items-center px-4 pt-10 pb-12 text-center relative max-w-xl mx-auto animate-fade-in-up">
         {/* Bismillah Arabic Calligraphy */}
-        <div className="flex flex-col items-center gap-1 mb-4">
+        <div className="flex flex-col items-center gap-1 mb-4 animate-fade-in-down">
           <span className="text-[#0F382A] text-2xl md:text-3xl tracking-widest font-serif leading-relaxed drop-shadow-[0_1px_3px_rgba(15,56,42,0.15)] select-none">
             بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ
           </span>
@@ -142,7 +145,7 @@ export default function NikahEmerald({ data }: TemplateProps) {
         </div>
 
         {/* Royal Arabesque Motif Divider */}
-        <div className="flex flex-col items-center justify-center w-full max-w-xs my-2 text-[#C5A059]">
+        <div className="flex flex-col items-center justify-center w-full max-w-xs my-2 text-[#C5A059] animate-fade-in">
           <div className="flex items-center justify-center gap-2 w-full">
             <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-[#C5A059] to-[#C5A059]" />
             <span className="text-xs tracking-widest select-none">❀ ✤ ❀</span>
@@ -168,20 +171,20 @@ export default function NikahEmerald({ data }: TemplateProps) {
         </div>
 
         {/* Moorish Arch Portrait Frame */}
-        <div className="relative w-full max-w-[310px] aspect-[4/5] p-2 bg-gradient-to-b from-[#C5A059]/40 via-[#C5A059]/20 to-[#C5A059]/10 rounded-t-[10rem] rounded-b-xl shadow-[0_16px_40px_rgba(197,160,89,0.18)] border border-[#C5A059]/40 backdrop-blur-sm">
-          <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1 bg-[#FAF5EC] border border-[#C5A059]/40 px-3 py-0.5 rounded-full shadow-sm text-[#0F382A] font-serif text-[11px] select-none tracking-wide">
+        <div className="relative w-full max-w-[310px] aspect-[4/5] p-2 bg-gradient-to-b from-[#C5A059]/40 via-[#C5A059]/20 to-[#C5A059]/10 rounded-t-[10rem] rounded-b-xl shadow-[0_16px_40px_rgba(197,160,89,0.18)] border border-[#C5A059]/40 backdrop-blur-sm hover-lift transition-all duration-500">
+          <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1 bg-[#FAF5EC] border border-[#C5A059]/40 px-3 py-0.5 rounded-full shadow-sm text-[#0F382A] font-serif text-[11px] select-none tracking-wide animate-float-gentle">
             <span className="text-xs text-[#C5A059]">🌸</span>
             <span>Jasmine Garland Swag</span>
             <span className="text-xs text-[#C5A059]">🌸</span>
           </div>
 
-          <div className="relative w-full h-full rounded-t-[9.75rem] rounded-b-lg overflow-hidden bg-[#F3EFE6] shadow-inner ring-1 ring-[#C5A059]/30">
+          <div className="relative w-full h-full rounded-t-[9.75rem] rounded-b-lg overflow-hidden bg-[#F3EFE6] shadow-inner ring-1 ring-[#C5A059]/30 group">
             {couple.coverPhotoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={couple.coverPhotoUrl}
                 alt={`${couple.groomName} and ${couple.brideName}`}
-                className="w-full h-full object-cover object-center transform scale-105 hover:scale-100 transition-transform duration-700 ease-out"
+                className="w-full h-full object-cover object-center transform scale-105 group-hover:scale-100 transition-transform duration-700 ease-out"
               />
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center text-xs text-[#8e786b] tracking-wider uppercase font-serif">
@@ -197,7 +200,7 @@ export default function NikahEmerald({ data }: TemplateProps) {
         </div>
 
         {/* Live Countdown Floating Pill */}
-        <div className="w-full max-w-xs mt-6 bg-white/95 backdrop-blur-md rounded-full px-4 py-3 shadow-[0_10px_30px_rgba(197,160,89,0.15)] border border-[#C5A059]/30">
+        <div className="w-full max-w-xs mt-6 bg-white/95 backdrop-blur-md rounded-full px-4 py-3 shadow-[0_10px_30px_rgba(197,160,89,0.15)] border border-[#C5A059]/30 hover-lift transition-all">
           <div className="flex items-center justify-around text-center">
             <div className="flex flex-col">
               <span className="text-lg text-[#0F382A] font-bold">{timeLeft.days}</span>
@@ -224,7 +227,7 @@ export default function NikahEmerald({ data }: TemplateProps) {
 
       {/* SECTION 2: QURANIC VERSE BANNER */}
       <section className="px-4 my-4 max-w-xl mx-auto">
-        <div className="relative w-full rounded-2xl bg-[#F4F8F5] border border-[#3e6657]/20 p-6 shadow-[0_12px_32px_rgba(15,56,42,0.06)] overflow-hidden text-center flex flex-col items-center">
+        <RevealOnScroll direction="up" className="relative w-full rounded-2xl bg-[#F4F8F5] border border-[#3e6657]/20 p-6 shadow-[0_12px_32px_rgba(15,56,42,0.06)] overflow-hidden text-center flex flex-col items-center hover-lift transition-all duration-300">
           <div className="absolute -top-12 -right-12 w-32 h-32 bg-[#C5A059]/15 rounded-full blur-2xl" />
           <div className="absolute -bottom-12 -left-12 w-32 h-32 bg-[#c0ecd9]/40 rounded-full blur-2xl" />
 
@@ -246,12 +249,12 @@ export default function NikahEmerald({ data }: TemplateProps) {
           <span className="text-[10px] uppercase tracking-widest text-[#775a19] mt-2 font-semibold">
             Surah Ar-Rum • 30:21
           </span>
-        </div>
+        </RevealOnScroll>
       </section>
 
       {/* SECTION 3: FAMILIES & LINEAGE */}
       <section className="px-4 py-6 flex flex-col items-center max-w-xl mx-auto">
-        <div className="flex flex-col items-center mb-6 text-center">
+        <RevealOnScroll direction="up" className="flex flex-col items-center mb-6 text-center">
           <span className="text-[10px] uppercase tracking-widest text-[#775a19] font-semibold">Alhamdulillah</span>
           <h2 className="text-2xl text-[#1C1A17] font-serif mt-1 font-bold">Families &amp; Lineage</h2>
           <div className="flex items-center gap-2 mt-2 text-[#C5A059]">
@@ -259,11 +262,11 @@ export default function NikahEmerald({ data }: TemplateProps) {
             <span className="text-xs">❀ ✤ ❀</span>
             <div className="h-[1px] w-10 bg-gradient-to-l from-transparent to-[#C5A059]" />
           </div>
-        </div>
+        </RevealOnScroll>
 
         <div className="flex flex-col w-full gap-4">
           {/* Groom Card */}
-          <div className="relative w-full bg-white text-[#1C1A17] rounded-2xl p-6 shadow-[0_12px_32px_rgba(0,0,0,0.05)] border border-[#C5A059]/30 flex flex-col items-center text-center">
+          <RevealOnScroll direction="up" delay={50} className="relative w-full bg-white text-[#1C1A17] rounded-2xl p-6 shadow-[0_12px_32px_rgba(0,0,0,0.05)] border border-[#C5A059]/30 flex flex-col items-center text-center hover-lift transition-all duration-300">
             <div className="w-10 h-10 rounded-full bg-[#FAF5EC] text-[#0F382A] flex items-center justify-center mb-2 shadow-sm border border-[#C5A059]/20 font-bold">
               👤
             </div>
@@ -279,10 +282,10 @@ export default function NikahEmerald({ data }: TemplateProps) {
                 <span>Kunhimoideen &amp; Sainaba</span>
               </div>
             </div>
-          </div>
+          </RevealOnScroll>
 
           {/* Bride Card */}
-          <div className="relative w-full bg-white text-[#1C1A17] rounded-2xl p-6 shadow-[0_12px_32px_rgba(0,0,0,0.05)] border border-[#C5A059]/30 flex flex-col items-center text-center">
+          <RevealOnScroll direction="up" delay={150} className="relative w-full bg-white text-[#1C1A17] rounded-2xl p-6 shadow-[0_12px_32px_rgba(0,0,0,0.05)] border border-[#C5A059]/30 flex flex-col items-center text-center hover-lift transition-all duration-300">
             <div className="w-10 h-10 rounded-full bg-[#FAF5EC] text-[#0F382A] flex items-center justify-center mb-2 shadow-sm border border-[#C5A059]/20 font-bold">
               🧕
             </div>
@@ -298,14 +301,14 @@ export default function NikahEmerald({ data }: TemplateProps) {
                 <span>Yousef &amp; Fathima</span>
               </div>
             </div>
-          </div>
+          </RevealOnScroll>
         </div>
       </section>
 
       {/* SECTION 4: CEREMONIES & CELEBRATIONS */}
       {events && events.length > 0 && (
         <section className="px-4 py-8 flex flex-col items-center max-w-xl mx-auto">
-          <div className="flex flex-col items-center mb-6 text-center">
+          <RevealOnScroll direction="up" className="flex flex-col items-center mb-6 text-center">
             <span className="text-[10px] uppercase tracking-widest text-[#775a19] font-semibold">Program Schedule</span>
             <h2 className="text-2xl text-[#1C1A17] font-serif mt-1 font-bold">Ceremony &amp; Celebrations</h2>
             <div className="flex items-center gap-2 mt-2 text-[#C5A059]">
@@ -313,13 +316,15 @@ export default function NikahEmerald({ data }: TemplateProps) {
               <span className="text-xs">❀ 🕌 ❀</span>
               <div className="h-[1px] w-10 bg-gradient-to-l from-transparent to-[#C5A059]" />
             </div>
-          </div>
+          </RevealOnScroll>
 
           <div className="flex flex-col w-full gap-5">
             {events.map((evt, idx) => (
-              <div
+              <RevealOnScroll
                 key={evt.id}
-                className="w-full bg-white rounded-2xl p-6 shadow-[0_12px_32px_rgba(0,0,0,0.06)] border border-[#C5A059]/30 flex flex-col relative overflow-hidden"
+                direction="up"
+                delay={idx * 100}
+                className="w-full bg-white rounded-2xl p-6 shadow-[0_12px_32px_rgba(0,0,0,0.06)] border border-[#C5A059]/30 flex flex-col relative overflow-hidden hover-lift transition-all duration-300"
               >
                 <div className="flex items-center justify-between mb-2">
                   <span className="inline-flex items-center px-3 py-1 rounded-full bg-[#FAF5EC] text-[#775a19] border border-[#C5A059]/30 text-[10px] uppercase tracking-wider font-semibold">
@@ -351,37 +356,17 @@ export default function NikahEmerald({ data }: TemplateProps) {
                   </div>
                 </div>
 
-                {/* Action CTAs */}
-                <div className="flex items-center gap-2 pt-2">
-                  {evt.googleMapsUrl && (
-                    <a
-                      href={evt.googleMapsUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 py-3 px-4 rounded-xl bg-[#C5A059] text-[#1C1A17] text-xs uppercase tracking-wider font-bold flex items-center justify-center gap-2 shadow-[0_4px_12px_rgba(197,160,89,0.25)] hover:bg-[#d6af66] transition-colors"
-                    >
-                      <span>📍</span>
-                      <span>Get Directions</span>
-                    </a>
-                  )}
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      downloadICS(
-                        evt.eventName,
-                        `Wedding ceremony for ${couple.brideName} and ${couple.groomName}`,
-                        `${evt.venueName}, ${evt.venueAddress || ""}`,
-                        evt.date
-                      )
-                    }
-                    className="p-3 rounded-xl bg-[#FAF5EC] text-[#775a19] hover:bg-[#F2ECE0] border border-[#C5A059]/30 transition-colors flex items-center justify-center shadow-sm"
-                    title="Add to Calendar"
-                  >
-                    📅
-                  </button>
+                <div className="mt-4 pt-3 border-t border-[#FAF5EC]">
+                  <GoogleMapCard event={evt} />
+                  <AddToCalendarButton
+                    event={evt}
+                    brideName={couple.brideName}
+                    groomName={couple.groomName}
+                    weddingId={weddingId}
+                    isPreview={isPreview}
+                  />
                 </div>
-              </div>
+              </RevealOnScroll>
             ))}
           </div>
         </section>
@@ -389,7 +374,7 @@ export default function NikahEmerald({ data }: TemplateProps) {
 
       {/* SECTION 5: INTERACTIVE BLESSINGS WIDGET */}
       <section className="px-4 py-8 max-w-xl mx-auto">
-        <div className="relative w-full rounded-2xl bg-white border border-[#C5A059]/40 p-6 text-center flex flex-col items-center shadow-[0_16px_40px_rgba(197,160,89,0.14)] overflow-hidden">
+        <RevealOnScroll direction="scale" className="relative w-full rounded-2xl bg-white border border-[#C5A059]/40 p-6 text-center flex flex-col items-center shadow-[0_16px_40px_rgba(197,160,89,0.14)] overflow-hidden hover-lift transition-all">
           <div className="absolute -top-10 -right-10 w-28 h-28 bg-[#C5A059]/15 rounded-full blur-xl" />
           <div className="absolute -bottom-10 -left-10 w-28 h-28 bg-[#c0ecd9]/30 rounded-full blur-xl" />
           <div ref={heartContainerRef} className="absolute inset-0 pointer-events-none overflow-hidden" />
@@ -406,7 +391,7 @@ export default function NikahEmerald({ data }: TemplateProps) {
           <button
             type="button"
             onClick={handleBlessingClick}
-            className="group relative active:scale-95 transition-transform flex items-center gap-3 px-6 py-3.5 rounded-full bg-[#C5A059] text-[#1C1A17] text-sm shadow-[0_8px_24px_rgba(197,160,89,0.3)] hover:bg-[#d6af66] font-bold cursor-pointer"
+            className="group relative active:scale-95 transition-transform flex items-center gap-3 px-6 py-3.5 rounded-full bg-[#C5A059] text-[#1C1A17] text-sm shadow-[0_8px_24px_rgba(197,160,89,0.3)] hover:bg-[#d6af66] font-bold cursor-pointer tap-bounce"
           >
             <span className="text-red-600 transition-transform group-hover:scale-125">❤</span>
             <span>Send Warm Blessings</span>
@@ -416,11 +401,11 @@ export default function NikahEmerald({ data }: TemplateProps) {
           </button>
 
           {/* Dynamic Counter Badge */}
-          <div className="inline-flex items-center gap-1.5 mt-4 text-[#0F382A] text-xs bg-[#FAF5EC] border border-[#C5A059]/30 px-4 py-1.5 rounded-full shadow-sm">
+          <div className="inline-flex items-center gap-1.5 mt-4 text-[#0F382A] text-xs bg-[#FAF5EC] border border-[#C5A059]/30 px-4 py-1.5 rounded-full shadow-sm hover-lift">
             <span className="font-bold text-[#775a19]">{blessingCount}</span>
             <span className="opacity-90">Warm Heart Blessings Received</span>
           </div>
-        </div>
+        </RevealOnScroll>
       </section>
 
       {/* SECTION 6: SACRED FOOTER & DUA */}

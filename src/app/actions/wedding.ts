@@ -1,134 +1,48 @@
 "use server";
+import { createClient } from '@/lib/supabase/server';
+import { weddingDataSchema } from '@/lib/validation/wedding';
+import { publishableWeddingSchema } from '@/lib/payments/validation';
+import type { WeddingData } from '@/types/wedding';
+import { revalidatePath } from 'next/cache';
+import { z } from 'zod';
 
-import { createClient, createAdminClient } from "@/lib/supabase/server";
-import { weddingDataSchema } from "@/lib/validation/wedding";
-import type { WeddingData } from "@/types/wedding";
-import { revalidatePath } from "next/cache";
+const reserved = new Set(['api','studio','rsvps','login','signup','auth','dashboard','pricing','templates','admin','account','settings','preview','invite','privacy','terms','support','favicon','robots','sitemap']);
+const inputSchema = z.object({
+  weddingId: z.union([z.literal('new'), z.uuid()]), slug: z.string().max(200).optional(),
+  templateId: z.enum(['royal-rajwada','minimal-sage','boho-floral','nikah-emerald','bento-clay']), weddingData: weddingDataSchema,
+}).strict();
 
-const RESERVED_SLUGS = new Set([
-  'api', 'studio', 'rsvps', 'login', 'signup', 'auth', 'dashboard',
-  'pricing', 'templates', 'admin', 'account', 'settings', 'preview', 'invite',
-  'privacy', 'terms', 'support', 'favicon', 'robots', 'sitemap'
-]);
-
-function sanitizeSlug(raw: string): string {
-  const cleaned = raw.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-  if (cleaned.length < 3) return `wedding-${cleaned || 'invite'}`;
-  return cleaned.slice(0, 80);
-}
-
-export async function saveWeddingDraft({
-  weddingId,
-  slug: rawSlug,
-  templateId,
-  weddingData,
-}: {
-  weddingId: string;
-  slug?: string;
-  templateId: string;
-  weddingData: WeddingData;
-}) {
+export async function saveWeddingDraft(input: { weddingId: string; slug?: string; templateId: string; weddingData: WeddingData }) {
   try {
-    // 1. Validate payload against WeddingData schema
-    const validation = weddingDataSchema.safeParse(weddingData);
-    if (!validation.success) {
-      const errorMsg = validation.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join(', ');
-      return { success: false, error: `Invalid data format: ${errorMsg}` };
-    }
-
-    // 2. Format and validate slug
-    let slug = sanitizeSlug(rawSlug || `${weddingData.couple.brideName}-weds-${weddingData.couple.groomName}`);
-    if (slug.length < 3) slug = `wedding-${Date.now().toString(36)}`;
-    if (RESERVED_SLUGS.has(slug)) slug = `${slug}-celebration`;
-
-    const validTemplate = ['royal-rajwada', 'minimal-sage', 'boho-floral', 'nikah-emerald'].includes(templateId)
-      ? (templateId as 'royal-rajwada' | 'minimal-sage' | 'boho-floral' | 'nikah-emerald')
-      : 'royal-rajwada';
-
-    const supabase = await createClient();
-    const admin = await createAdminClient();
-
-    // 3. Resolve user
-    const { data: { user } } = await supabase.auth.getUser();
-    let userId = user?.id;
-
-    if (!userId) {
-      // For development studio without active auth session, resolve or create a dev user
-      const devEmail = 'dev-studio@weddingsaas.local';
-      const { data: usersData } = await admin.auth.admin.listUsers();
-      const existingDev = usersData?.users?.find((u) => u.email === devEmail);
-
-      if (existingDev) {
-        userId = existingDev.id;
-      } else {
-        const { data: newDev, error: createDevErr } = await admin.auth.admin.createUser({
-          email: devEmail,
-          password: 'dev-studio-password-123!',
-          email_confirm: true,
-        });
-        if (createDevErr || !newDev.user) {
-          return { success: false, error: createDevErr?.message || 'Failed to initialize dev user' };
-        }
-        userId = newDev.user.id;
+    const parsed = inputSchema.safeParse(input);
+    if (!parsed.success) return { success: false, error: parsed.error.issues[0].message };
+    const { weddingId, weddingData, templateId } = parsed.data;
+    let slug = (parsed.data.slug || `${weddingData.couple.brideName}-weds-${weddingData.couple.groomName}`)
+      .toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').slice(0,80).replace(/^-+|-+$/g, '');
+    if (slug.length < 3) slug = `wedding-${slug || 'invite'}`;
+    if (reserved.has(slug)) slug += '-celebration';
+    const client = await createClient();
+    const { data: { user }, error: authError } = await client.auth.getUser();
+    if (authError || !user) return { success: false, error: 'Sign in before saving your invitation.' };
+    let previousSlug: string | undefined;
+    if (weddingId !== 'new') {
+      const { data: existing, error } = await client.from('weddings').select('slug,is_paid').eq('id', weddingId).eq('user_id', user.id).maybeSingle();
+      if (error || !existing) return { success: false, error: 'Invitation not found in your account.' };
+      previousSlug = existing.slug;
+      if (existing.is_paid) {
+        const ready = publishableWeddingSchema.safeParse(weddingData);
+        if (!ready.success) return { success: false, error: ready.error.issues[0].message };
       }
     }
-
-    // 4. Update or Insert
-    if (weddingId && weddingId !== 'new') {
-      const { data, error } = await admin
-        .from('weddings')
-        .update({
-          slug,
-          template_id: validTemplate,
-          wedding_data: validation.data,
-        })
-        .eq('id', weddingId)
-        .select()
-        .single();
-
-      if (error) {
-        return { success: false, error: error.message };
-      }
-
-      revalidatePath(`/invite/${slug}`);
-      revalidatePath(`/${slug}`);
-      revalidatePath(`/studio/${weddingId}`);
-
-      return { success: true, weddingId: data.id, slug: data.slug };
-    } else {
-      // Check if slug is already taken
-      const { data: existingSlug } = await admin
-        .from('weddings')
-        .select('id')
-        .eq('slug', slug)
-        .maybeSingle();
-
-      if (existingSlug) {
-        slug = `${slug}-${Math.floor(100 + Math.random() * 900)}`;
-      }
-
-      const { data, error } = await admin
-        .from('weddings')
-        .insert({
-          user_id: userId,
-          slug,
-          template_id: validTemplate,
-          wedding_data: validation.data,
-        })
-        .select()
-        .single();
-
-      if (error) {
-        return { success: false, error: error.message };
-      }
-
-      revalidatePath(`/invite/${slug}`);
-      revalidatePath(`/${slug}`);
-
-      return { success: true, weddingId: data.id, slug: data.slug };
+    const values = { slug, template_id: templateId, wedding_data: weddingData };
+    const query = weddingId === 'new' ? client.from('weddings').insert(values)
+      : client.from('weddings').update(values).eq('id', weddingId).eq('user_id', user.id);
+    const { data, error } = await query.select('id,slug').single();
+    if (error) return { success: false, error: error.code === '23505' ? 'That link is taken. Choose another invitation link.' : 'Could not save your invitation. Please try again.' };
+    for (const value of new Set([slug, previousSlug].filter(Boolean))) {
+      revalidatePath(`/${value}`); revalidatePath(`/invite/${value}`);
     }
-  } catch (err) {
-    const message = err instanceof Error ? err.message : 'Unknown server error';
-    return { success: false, error: message };
-  }
+    revalidatePath('/studio');
+    return { success: true, weddingId: data.id, slug: data.slug };
+  } catch { return { success: false, error: 'Saving is unavailable. Check your connection and account configuration.' }; }
 }

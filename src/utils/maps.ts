@@ -32,7 +32,8 @@ export function getDirectionsUrl(event: VenueEvent): string | null {
   if (placeId || point) {
     const params = new URLSearchParams({ api: "1", destination: point || location || placeId! });
     if (placeId) params.set("destination_place_id", placeId);
-    return `https://www.google.com/maps/dir/?${params}`;
+    const url = `https://www.google.com/maps/dir/?${params}`;
+    return url.length <= 2048 ? url : null;
   }
   const manualUrl = safeWebUrl(event.googleMapsUrl);
   // Ignore the generic Maps homepage used by older sample drafts.

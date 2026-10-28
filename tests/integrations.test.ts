@@ -106,7 +106,7 @@ test("manual location edits invalidate old pins and still satisfy WeddingData", 
   assert.ok(weddingDataSchema.safeParse({ ...createEmptyWeddingData(), events: [changed] }).success);
 });
 
-test("all three templates render accessible event actions and tolerate blank event drafts", () => {
+test("all registered templates render accessible event actions and tolerate blank event drafts", () => {
   const data = createEmptyWeddingData();
   data.events = [event];
   for (const Template of Object.values(TEMPLATE_REGISTRY)) {

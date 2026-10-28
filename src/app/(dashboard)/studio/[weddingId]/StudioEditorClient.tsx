@@ -8,6 +8,7 @@ import Link from 'next/link';
 import VenueLocationPicker from '@/components/editor/VenueLocationPicker';
 import { updateVenueText } from '@/utils/maps';
 import { getEventTimeRange } from '@/utils/calendar';
+import PublishPayButton from '@/components/editor/PublishPayButton';
 
 interface StudioEditorClientProps {
   initialData: WeddingData;
@@ -15,6 +16,7 @@ interface StudioEditorClientProps {
   initialSlug: string;
   weddingId: string;
   isPaid: boolean;
+  returnedFromPayment?: boolean;
 }
 
 type TabKey = 'couple' | 'story' | 'events' | 'gallery' | 'theme' | 'rsvp';
@@ -24,9 +26,12 @@ export default function StudioEditorClient({
   initialTemplateId,
   initialSlug,
   weddingId: initialWeddingId,
-  isPaid,
+  isPaid: initialIsPaid,
+  returnedFromPayment = false,
 }: StudioEditorClientProps) {
   const [formData, setFormData] = useState<WeddingData>(initialData);
+  const [isPaid, setIsPaid] = useState(initialIsPaid);
+  const [savedSnapshot, setSavedSnapshot] = useState(JSON.stringify({ data: initialData, template: initialTemplateId, slug: initialSlug }));
   const [templateId, setTemplateId] = useState<string>(initialTemplateId || 'royal-rajwada');
   const [slug, setSlug] = useState<string>(initialSlug || '');
   const [activeTab, setActiveTab] = useState<TabKey>('couple');
@@ -163,7 +168,9 @@ export default function StudioEditorClient({
 
       if (res.success && res.weddingId) {
         setCurrentWeddingId(res.weddingId);
-        if (res.slug) setSlug(res.slug);
+        if (res.slug) setSlug(current => current === slug ? res.slug! : current);
+        setSavedSnapshot(JSON.stringify({ data: formData, template: templateId, slug: res.slug || slug }));
+        window.history.replaceState(null, '', `/studio/${res.weddingId}`);
         setSaveStatus('saved');
         setTimeout(() => setSaveStatus('idle'), 3000);
       } else {
@@ -189,7 +196,7 @@ export default function StudioEditorClient({
           </div>
 
           <div className="flex items-center gap-3">
-            {slug && currentWeddingId !== 'new' && (
+            {isPaid && slug && currentWeddingId !== 'new' && (
               <Link
                 href={`/${slug}`}
                 target="_blank"
@@ -226,6 +233,10 @@ export default function StudioEditorClient({
         )}
 
         {/* Template Selector Bar */}
+        <div className="studio-account-links"><Link href="/studio">My invitations</Link><Link href="/login?next=/studio/new">Sign in</Link></div>
+        <PublishPayButton weddingId={currentWeddingId} slug={slug} isPaid={isPaid}
+          dirty={savedSnapshot !== JSON.stringify({ data: formData, template: templateId, slug })}
+          returnedFromPayment={returnedFromPayment} onPaid={setIsPaid} />
         <div className="studio-design-picker">
           <label htmlFor="design-choice" className="text-xs font-semibold text-slate-600">Your design</label>
           <select

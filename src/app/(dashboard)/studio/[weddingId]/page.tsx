@@ -2,10 +2,12 @@ import { createClient } from '@/lib/supabase/server';
 import { createEmptyWeddingData } from '@/lib/wedding-defaults';
 import type { WeddingData } from '@/types/wedding';
 import StudioEditorClient from './StudioEditorClient';
+import { notFound, redirect } from 'next/navigation';
+import { z } from 'zod';
 
 interface PageProps {
   params: Promise<{ weddingId: string }>;
-  searchParams: Promise<{ template?: string }>;
+  searchParams: Promise<{ template?: string; payment?: string }>;
 }
 
 const SAMPLE_STARTER_DATA: WeddingData = {
@@ -82,20 +84,25 @@ const SAMPLE_STARTER_DATA: WeddingData = {
 
 export default async function StudioPage({ params, searchParams }: PageProps) {
   const { weddingId } = await params;
-  const { template } = await searchParams;
+  const { template, payment } = await searchParams;
   let initialData: WeddingData = SAMPLE_STARTER_DATA;
-  let initialTemplateId = template && ['royal-rajwada', 'minimal-sage', 'boho-floral'].includes(template) ? template : 'royal-rajwada';
+  let initialTemplateId = template && ['royal-rajwada', 'minimal-sage', 'boho-floral', 'nikah-emerald'].includes(template) ? template : 'royal-rajwada';
   let initialSlug = 'priya-weds-rahul';
   let isPaid = false;
 
   if (weddingId && weddingId !== 'new') {
+    if (!z.uuid().safeParse(weddingId).success) notFound();
     const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) redirect(`/login?next=/studio/${weddingId}`);
     const { data: wedding } = await supabase
       .from('weddings')
       .select('*')
       .eq('id', weddingId)
+      .eq('user_id', user.id)
       .maybeSingle();
 
+    if (!wedding) notFound();
     if (wedding) {
       initialData = (wedding.wedding_data as WeddingData) || createEmptyWeddingData();
       initialTemplateId = wedding.template_id || 'royal-rajwada';
@@ -111,6 +118,7 @@ export default async function StudioPage({ params, searchParams }: PageProps) {
       initialSlug={initialSlug}
       weddingId={weddingId}
       isPaid={isPaid}
+      returnedFromPayment={payment === 'return'}
     />
   );
 }

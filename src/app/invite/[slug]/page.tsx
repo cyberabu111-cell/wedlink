@@ -1,79 +1,38 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { cache } from 'react';
 import { TEMPLATE_REGISTRY } from '@/templates';
-import { createClient } from '@/utils/supabase/server';
+import { createAdminClient } from '@/lib/supabase/server';
+import { weddingDataSchema } from '@/lib/validation/wedding';
 
-interface PageProps {
-  params: Promise<{ slug: string }>;
-}
+export const dynamic = 'force-dynamic';
+interface PageProps { params: Promise<{ slug: string }> }
+const publishedWedding = cache(async (slug: string) => {
+  if (!/^[a-z0-9][a-z0-9-]{1,78}[a-z0-9]$/.test(slug)) return null;
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return null;
+  const admin = await createAdminClient();
+  const { data, error } = await admin.from('weddings').select('id,slug,template_id,wedding_data')
+    .eq('slug', slug).eq('is_paid', true).maybeSingle();
+  if (error) throw new Error('Unable to load invitation');
+  if (!data || !weddingDataSchema.safeParse(data.wedding_data).success) return null;
+  return data;
+});
 
-// 1. Dynamic WhatsApp / Social OG Preview Tags
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug } = await params;
-  const supabase = await createClient();
-  const { data: wedding } = await supabase
-    .from('weddings')
-    .select('wedding_data')
-    .eq('slug', slug)
-    .single();
-
-  if (!wedding?.wedding_data) {
-    return { title: 'Wedding Invitation' };
-  }
-
+  const wedding = await publishedWedding((await params).slug);
+  if (!wedding) return { title: 'Invitation unavailable', robots: { index: false, follow: false } };
   const { couple } = wedding.wedding_data;
-  const bride = couple.brideName || 'Bride';
-  const groom = couple.groomName || 'Groom';
-  const title = `${bride} & ${groom}'s Wedding Invitation`;
-  const dateText = couple.weddingDate ? ` on ${couple.weddingDate}` : '';
-  const description = `Join us in celebrating our wedding${dateText}. Tap to view events, location maps, and RSVP!`;
-
-  return {
-    title,
-    description,
-    openGraph: {
-      title,
-      description,
-      images: couple.coverPhotoUrl ? [{ url: couple.coverPhotoUrl, width: 1200, height: 630 }] : [],
-      type: 'website',
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      images: couple.coverPhotoUrl ? [couple.coverPhotoUrl] : [],
-    },
-  };
+  const title = `${couple.brideName} & ${couple.groomName}'s Wedding Invitation`;
+  const description = `Join us in celebrating our wedding on ${couple.weddingDate}. View our events and venue details.`;
+  const images = couple.coverPhotoUrl ? [couple.coverPhotoUrl] : [];
+  return { title, description, openGraph: { title, description, images, type: 'website' },
+    twitter: { card: 'summary_large_image', title, description, images } };
 }
 
-// 2. Main Invitation Renderer
 export default async function PublicInvitationPage({ params }: PageProps) {
-  const { slug } = await params;
-  const supabase = await createClient();
-  const { data: wedding } = await supabase
-    .from('weddings')
-    .select('*')
-    .eq('slug', slug)
-    .single();
-
+  const wedding = await publishedWedding((await params).slug);
   if (!wedding) notFound();
-
-  const SelectedTemplate = TEMPLATE_REGISTRY[wedding.template_id] || TEMPLATE_REGISTRY['royal-rajwada'];
-
-  return (
-    <div className={`relative min-h-screen ${!wedding.is_paid ? 'pt-10' : ''}`}>
-      {/* Watermark Banner if the user hasn't paid via Cashfree yet */}
-      {!wedding.is_paid && (
-        <div className="fixed top-0 left-0 right-0 z-50 bg-amber-500 text-black text-center py-2 px-4 font-semibold text-xs md:text-sm shadow-md">
-          DRAFT PREVIEW — Complete payment in your dashboard to remove this watermark &amp; activate RSVPs.
-        </div>
-      )}
-
-      <SelectedTemplate
-        data={wedding.wedding_data}
-        weddingId={wedding.id}
-        isPaid={wedding.is_paid}
-      />
-    </div>
-  );
+  const Template = TEMPLATE_REGISTRY[wedding.template_id];
+  if (!Template) notFound();
+  return <Template data={wedding.wedding_data} weddingId={wedding.id} isPaid isPreview={false} />;
 }

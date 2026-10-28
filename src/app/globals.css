@@ -6,6 +6,118 @@ h1, h2 { font-family: Georgia, 'Times New Roman', serif; font-weight: 400; }
 ::selection { background: #e1cfc1; }
 
 /* Shared visual language: warm paper, plum ink and quiet botanical accents. */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes floatGentle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes shimmerEffect {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-fade-in-down {
+  animation: fadeInDown 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-float-gentle {
+  animation: floatGentle 4.5s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2.5s ease-in-out infinite;
+}
+
+.animation-delay-100 { animation-delay: 100ms; }
+.animation-delay-200 { animation-delay: 200ms; }
+.animation-delay-300 { animation-delay: 300ms; }
+.animation-delay-400 { animation-delay: 400ms; }
+.animation-delay-500 { animation-delay: 500ms; }
+.animation-delay-600 { animation-delay: 600ms; }
+
+.hover-lift {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hover-lift:hover {
+  transform: translateY(-4px);
+}
+
+.tap-bounce {
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.tap-bounce:active {
+  transform: scale(0.96);
+}
+
 .event-map-card { margin-top: 16px; min-width: 0; }
 .event-map-card iframe { width: 100%; height: 210px; border: 0; border-radius: 10px; background: #f2eee8; display: block; margin-bottom: 10px; }
 .event-action { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 46px; padding: 12px 14px; border: 1px solid #d9cec4; border-radius: 8px; background: #fffdfa; color: #463b3f; font: 500 12px/1.5 Arial, sans-serif; text-decoration: none; cursor: pointer; text-align: left; }
@@ -181,3 +293,25 @@ button:disabled { cursor: wait; opacity: .6; }
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+/* Account and checkout flows start with a single, touch-friendly column. */
+.account-page { min-height: 100dvh; background: #fbf8f3; padding: 40px 16px; color: #332c36; }
+.account-card { max-width: 480px; margin: auto; padding: 28px 22px; border: 1px solid #e7dfe4; border-radius: 20px; background: white; }
+.account-card h1 { font-size: clamp(26px, 6vw, 38px); line-height: 1.15; margin: 24px 0 16px; }
+.account-card p, .publish-panel p { font-size: 14px; line-height: 1.6; margin: 12px 0; }
+.account-card form, .publish-panel form { display: grid; gap: 10px; }
+.account-card label, .publish-panel label { font-size: 13px; font-weight: 600; }
+.account-card input, .publish-panel input { width: 100%; min-height: 46px; border: 1px solid #cfc5ce; border-radius: 9px; padding: 10px 12px; font-size: 16px; background: white; }
+.account-primary { display: inline-flex; justify-content: center; align-items: center; min-height: 46px; padding: 12px 18px; border-radius: 10px; background: #523d50; color: white; font-size: 14px; font-weight: 600; text-decoration: none; cursor: pointer; }
+.account-primary:disabled { opacity: .5; cursor: not-allowed; }
+.account-card a:not(.account-primary), .publish-panel a { text-decoration: underline; text-underline-offset: 4px; }
+.account-wide { max-width: 860px; }
+.account-actions { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; margin-bottom: 28px; }
+.account-actions button, .payment-check { min-height: 44px; cursor: pointer; }
+.invitation-list { list-style: none; padding: 0; }
+.invitation-list li { display: flex; flex-wrap: wrap; gap: 18px; align-items: center; padding: 20px 0; border-top: 1px solid #eee7ed; }
+.invitation-list li > div { flex: 1 1 240px; }
+.publish-panel { margin: 12px 20px; padding: 16px; background: #f7f2f6; border: 1px solid #e5dbe3; border-radius: 12px; color: #493647; }
+.publish-panel summary { cursor: pointer; font-size: 14px; font-weight: 650; min-height: 28px; }
+.payment-check { margin-top: 8px; font-size: 13px; text-decoration: underline; }
+.studio-account-links { display: flex; gap: 20px; padding: 0 24px; font-size: 12px; }
+.studio-account-links a { display: inline-flex; min-height: 44px; align-items: center; }

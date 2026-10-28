@@ -4,6 +4,7 @@ import React, { useMemo } from "react";
 import type { TemplateProps } from "./index";
 import { GoogleMapCard } from "@/components/shared/GoogleMapCard";
 import { AddToCalendarButton } from "@/components/shared/AddToCalendarButton";
+import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 
 function formatDate(dateStr?: string) {
   if (!dateStr) return "";
@@ -11,6 +12,7 @@ function formatDate(dateStr?: string) {
     const d = new Date(dateStr);
     if (isNaN(d.getTime())) return dateStr;
     return d.toLocaleDateString("en-US", {
+      timeZone: "UTC",
       weekday: "long",
       year: "numeric",
       month: "long",
@@ -37,7 +39,7 @@ export default function RoyalRajwada({ data, weddingId, isPreview }: TemplatePro
     >
       {/* Decorative Traditional Indian Arch Banner */}
       <div
-        className="w-full text-center py-3 text-xs tracking-[0.25em] uppercase font-semibold border-b"
+        className="w-full text-center py-3 text-xs tracking-[0.25em] uppercase font-semibold border-b animate-fade-in-down"
         style={{
           backgroundColor: primary,
           color: secondary,
@@ -58,10 +60,10 @@ export default function RoyalRajwada({ data, weddingId, isPreview }: TemplatePro
           }}
         />
 
-        <div className="max-w-3xl mx-auto relative z-10">
+        <div className="max-w-3xl mx-auto relative z-10 animate-fade-in-up">
           {couple.hashtag && (
             <span
-              className="inline-block px-4 py-1 text-xs tracking-[0.2em] uppercase rounded-full border mb-6 font-medium"
+              className="inline-block px-4 py-1 text-xs tracking-[0.2em] uppercase rounded-full border mb-6 font-medium animate-float-gentle"
               style={{ borderColor: secondary, color: primary, backgroundColor: "#fff9f0" }}
             >
               {couple.hashtag}
@@ -84,7 +86,7 @@ export default function RoyalRajwada({ data, weddingId, isPreview }: TemplatePro
           </h1>
 
           {formattedDate && (
-            <div className="mt-8 inline-flex items-center gap-3 px-6 py-2 rounded-full border border-[#e8d7c3] bg-white/70 shadow-sm text-sm tracking-wider">
+            <div className="mt-8 inline-flex items-center gap-3 px-6 py-2 rounded-full border border-[#e8d7c3] bg-white/70 shadow-sm text-sm tracking-wider hover-lift">
               <span style={{ color: secondary }}>✦</span>
               <span>{formattedDate}</span>
               <span style={{ color: secondary }}>✦</span>
@@ -93,39 +95,39 @@ export default function RoyalRajwada({ data, weddingId, isPreview }: TemplatePro
 
           {/* Cover Photo */}
           {couple.coverPhotoUrl ? (
-            <div className="mt-10 mx-auto max-w-lg p-2 rounded-2xl border-2 shadow-xl bg-white" style={{ borderColor: secondary }}>
-              <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-[#f0eae1]">
+            <div className="mt-10 mx-auto max-w-lg p-2 rounded-2xl border-2 shadow-xl bg-white hover-lift transition-all duration-500" style={{ borderColor: secondary }}>
+              <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-[#f0eae1] group">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={couple.coverPhotoUrl}
                   alt={`${couple.brideName} & ${couple.groomName}`}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                 />
               </div>
             </div>
           ) : (
-            <div className="mt-10 mx-auto max-w-lg p-12 rounded-2xl border-2 border-dashed bg-white/40 flex flex-col items-center justify-center text-center text-[#9b8577]" style={{ borderColor: secondary }}>
-              <span className="text-3xl mb-2" style={{ color: secondary }}>⚜</span>
+            <div className="mt-10 mx-auto max-w-lg p-12 rounded-2xl border-2 border-dashed bg-white/40 flex flex-col items-center justify-center text-center text-[#9b8577] hover-lift transition-all" style={{ borderColor: secondary }}>
+              <span className="text-3xl mb-2 animate-pulse-glow" style={{ color: secondary }}>⚜</span>
               <p className="text-xs tracking-wider uppercase">Royal Portrait Placeholder</p>
             </div>
           )}
 
           {/* Bios */}
           {(couple.brideBio || couple.groomBio) && (
-            <div className="mt-12 grid @3xl:grid-cols-2 gap-6 text-left">
+            <RevealOnScroll direction="up" delay={150} className="mt-12 grid @3xl:grid-cols-2 gap-6 text-left">
               {couple.brideBio && (
-                <div className="p-6 rounded-xl bg-white/80 border border-[#e8d7c3] shadow-sm">
+                <div className="p-6 rounded-xl bg-white/80 border border-[#e8d7c3] shadow-sm hover-lift transition-all duration-300">
                   <h3 className="text-lg font-medium mb-2" style={{ color: primary }}>The Bride</h3>
                   <p className="text-sm leading-relaxed text-[#5c493d]">{couple.brideBio}</p>
                 </div>
               )}
               {couple.groomBio && (
-                <div className="p-6 rounded-xl bg-white/80 border border-[#e8d7c3] shadow-sm">
+                <div className="p-6 rounded-xl bg-white/80 border border-[#e8d7c3] shadow-sm hover-lift transition-all duration-300">
                   <h3 className="text-lg font-medium mb-2" style={{ color: primary }}>The Groom</h3>
                   <p className="text-sm leading-relaxed text-[#5c493d]">{couple.groomBio}</p>
                 </div>
               )}
-            </div>
+            </RevealOnScroll>
           )}
         </div>
       </section>
@@ -133,7 +135,7 @@ export default function RoyalRajwada({ data, weddingId, isPreview }: TemplatePro
       {/* OUR STORY */}
       {story?.content && (
         <section className="px-6 py-16 bg-[#f4ebe1] border-y border-[#e2d2c1]">
-          <div className="max-w-2xl mx-auto text-center">
+          <RevealOnScroll direction="up" className="max-w-2xl mx-auto text-center">
             <span className="text-xs uppercase tracking-[0.25em] font-semibold" style={{ color: secondary }}>
               Shubh Aarambh
             </span>
@@ -148,7 +150,7 @@ export default function RoyalRajwada({ data, weddingId, isPreview }: TemplatePro
             {story.milestones && story.milestones.length > 0 && (
               <div className="mt-12 space-y-6 text-left">
                 {story.milestones.map((m, idx) => (
-                  <div key={idx} className="flex gap-4 p-4 rounded-xl bg-white/90 border border-[#e6d8c8] shadow-sm">
+                  <div key={idx} className="flex gap-4 p-4 rounded-xl bg-white/90 border border-[#e6d8c8] shadow-sm hover-lift transition-all duration-300">
                     <span className="font-bold text-sm tracking-wider pt-0.5" style={{ color: primary }}>
                       {m.year}
                     </span>
@@ -160,28 +162,29 @@ export default function RoyalRajwada({ data, weddingId, isPreview }: TemplatePro
                 ))}
               </div>
             )}
-          </div>
+          </RevealOnScroll>
         </section>
       )}
 
       {/* EVENTS / CEREMONIES */}
       {events && events.length > 0 && (
         <section className="px-6 py-20 max-w-4xl mx-auto">
-          <div className="text-center mb-12">
+          <RevealOnScroll direction="up" className="text-center mb-12">
             <span className="text-xs uppercase tracking-[0.25em] font-semibold" style={{ color: secondary }}>
               Celebration Itinerary
             </span>
             <h2 className="text-3xl @3xl:text-4xl mt-2" style={{ color: primary }}>
               Wedding Ceremonies
             </h2>
-          </div>
+          </RevealOnScroll>
 
           <div className="grid @3xl:grid-cols-2 gap-6">
-            {events.map((event) => (
-              <div
+            {events.map((event, idx) => (
+              <RevealOnScroll
                 key={event.id}
-                className="p-6 rounded-2xl bg-white border shadow-md relative overflow-hidden transition-all hover:shadow-lg"
-                style={{ borderColor: "#ecdcc8" }}
+                direction="up"
+                delay={idx * 100}
+                className="p-6 rounded-2xl bg-white border shadow-md relative overflow-hidden transition-all duration-300 hover-lift hover:shadow-xl"
               >
                 <div
                   className="absolute top-0 left-0 right-0 h-1"
@@ -217,9 +220,9 @@ export default function RoyalRajwada({ data, weddingId, isPreview }: TemplatePro
                     </p>
                   )}
                   <GoogleMapCard event={event} />
-                    <AddToCalendarButton event={event} brideName={couple.brideName} groomName={couple.groomName} weddingId={weddingId} isPreview={isPreview} />
+                  <AddToCalendarButton event={event} brideName={couple.brideName} groomName={couple.groomName} weddingId={weddingId} isPreview={isPreview} />
                 </div>
-              </div>
+              </RevealOnScroll>
             ))}
           </div>
         </section>
@@ -229,18 +232,20 @@ export default function RoyalRajwada({ data, weddingId, isPreview }: TemplatePro
       {gallery && gallery.length > 0 && (
         <section className="px-6 py-16 bg-[#f5ede3] border-t border-[#e2d2c1]">
           <div className="max-w-5xl mx-auto text-center">
-            <span className="text-xs uppercase tracking-[0.25em] font-semibold" style={{ color: secondary }}>
-              Precious Moments
-            </span>
-            <h2 className="text-3xl mt-2 mb-10" style={{ color: primary }}>
-              Photo Gallery
-            </h2>
+            <RevealOnScroll direction="up" className="mb-10">
+              <span className="text-xs uppercase tracking-[0.25em] font-semibold" style={{ color: secondary }}>
+                Precious Moments
+              </span>
+              <h2 className="text-3xl mt-2" style={{ color: primary }}>
+                Photo Gallery
+              </h2>
+            </RevealOnScroll>
             <div className="grid grid-cols-2 @3xl:grid-cols-3 gap-4">
               {gallery.map((url, i) => (
-                <div key={i} className="aspect-square rounded-xl overflow-hidden bg-white/70 border shadow-sm" style={{ borderColor: "#e4d2bf" }}>
+                <RevealOnScroll key={i} direction="scale" delay={i * 80} className="aspect-square rounded-xl overflow-hidden bg-white/70 border shadow-sm group hover-lift" >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={url} alt={`Gallery ${i + 1}`} className="w-full h-full object-cover" />
-                </div>
+                  <img src={url} alt={`Gallery ${i + 1}`} className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105" />
+                </RevealOnScroll>
               ))}
             </div>
           </div>
@@ -250,8 +255,8 @@ export default function RoyalRajwada({ data, weddingId, isPreview }: TemplatePro
       {/* RSVP FOOTER */}
       {rsvpConfig?.enabled && (
         <section className="px-6 py-20 text-center bg-white border-t border-[#e8d7c3]">
-          <div className="max-w-md mx-auto">
-            <span className="text-2xl" style={{ color: secondary }}>⚜</span>
+          <RevealOnScroll direction="up" className="max-w-md mx-auto">
+            <span className="text-2xl animate-pulse-glow inline-block" style={{ color: secondary }}>⚜</span>
             <h2 className="text-2xl @3xl:text-3xl mt-2" style={{ color: primary }}>
               Will You Grace Us With Your Presence?
             </h2>
@@ -266,7 +271,7 @@ export default function RoyalRajwada({ data, weddingId, isPreview }: TemplatePro
                   href={`https://wa.me/${rsvpConfig.whatsappNumber.replace(/[^0-9]/g, "")}?text=Hello!%20I%20would%20love%20to%20attend%20the%20wedding!`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-6 py-3 rounded-full text-white text-sm font-semibold tracking-wide shadow-md transition-transform hover:scale-105"
+                  className="px-6 py-3 rounded-full text-white text-sm font-semibold tracking-wide shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg tap-bounce"
                   style={{ backgroundColor: primary }}
                 >
                   RSVP via WhatsApp
@@ -275,14 +280,14 @@ export default function RoyalRajwada({ data, weddingId, isPreview }: TemplatePro
                 <button
                   type="button"
                   disabled={isPreview}
-                  className="px-6 py-3 rounded-full text-white text-sm font-semibold tracking-wide shadow-md"
+                  className="px-6 py-3 rounded-full text-white text-sm font-semibold tracking-wide shadow-md transition-all duration-300 hover:scale-105 tap-bounce"
                   style={{ backgroundColor: primary }}
                 >
                   {isPreview ? "RSVP (Active upon publish)" : "Send RSVP"}
                 </button>
               )}
             </div>
-          </div>
+          </RevealOnScroll>
         </section>
       )}
 

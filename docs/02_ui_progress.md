@@ -1,5 +1,7 @@
 # Module 02 UI refresh
 
+Historical snapshot. Current auth, publication and integration status is documented in `02_template_engine_and_editor.md` and `04_cashfree_payment_integration.md`; the development-only authorization caveat below was resolved in Module 04.
+
 Updated 2026-10-27.
 
 ## Implemented

@@ -4,7 +4,7 @@ export type WeddingRow = {
   id: string;
   user_id: string;
   slug: string;
-  template_id: "royal-rajwada" | "minimal-sage" | "boho-floral" | "nikah-emerald";
+  template_id: "royal-rajwada" | "minimal-sage" | "boho-floral" | "nikah-emerald" | "bento-clay";
   plan_tier: "basic" | "premium";
   is_paid: boolean;
   wedding_data: WeddingData;
@@ -17,6 +17,10 @@ export type PaymentRow = {
   user_id: string;
   cf_order_id: string;
   cf_payment_session_id: string | null;
+  cf_payment_id: string | null;
+  cf_environment: "SANDBOX" | "PRODUCTION";
+  checkout_request: Record<string, unknown> | null;
+  last_checked_at: string;
   amount: number;
   currency: "INR";
   status: "PENDING" | "SUCCESS" | "FAILED";
@@ -57,7 +61,10 @@ export type Database = {
         Partial<RsvpRow>>;
     };
     Views: { [_ in never]: never };
-    Functions: { [_ in never]: never };
+    Functions: {
+      reserve_checkout: { Args: { p_wedding_id: string; p_user_id: string; p_amount: number; p_environment: string; p_customer: Record<string, string>; p_app_url: string }; Returns: PaymentRow[] };
+      confirm_cashfree_payment: { Args: { p_order_id: string; p_payment_id: string; p_order_amount: number; p_payment_amount: number; p_currency: string; p_environment: string }; Returns: boolean };
+    };
     Enums: { [_ in never]: never };
     CompositeTypes: { [_ in never]: never };
   };
