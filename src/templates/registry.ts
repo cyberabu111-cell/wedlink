@@ -111,6 +111,16 @@ export const TEMPLATES: TemplateDefinition[] = [
       ssr: true,
     }),
   },
+  {
+    id: "minimal-white-arch",
+    name: "Minimal White Arch",
+    category: "Minimal",
+    thumbnailUrl: "/thumbs/white-arch.webp",
+    component: dynamic(() => import("./templates/MinimalWhiteArch"), {
+      loading: () => TemplateLoadingFallback(),
+      ssr: true,
+    }),
+  },
 ];
 
 export const TEMPLATE_REGISTRY: Record<string, TemplateDefinition> = TEMPLATES.reduce(

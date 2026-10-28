@@ -48,6 +48,7 @@ export interface WeddingTemplateProps {
   data: WeddingData;
   isPreview?: boolean;
   onRsvpSubmit?: (rsvp: any) => Promise<void>;
+  onTrackEvent?: (event: 'page_view' | 'map_click' | 'calendar_click' | 'rsvp_submit') => void;
   weddingId?: string;
   isPaid?: boolean;
 }
