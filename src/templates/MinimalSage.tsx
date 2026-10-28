@@ -215,16 +215,11 @@ export default function MinimalSage({ data, weddingId, isPreview }: TemplateProp
                 >
                   Confirm Attendance
                 </a>
-              ) : (
-                <button
-                  type="button"
-                  disabled={isPreview}
-                  className="px-8 py-3 rounded-lg text-white text-xs font-semibold tracking-widest uppercase shadow-sm transition-all duration-300 hover:scale-105 tap-bounce"
-                  style={{ backgroundColor: primary }}
-                >
-                  {isPreview ? "RSVP (Active upon publish)" : "RSVP Online"}
-                </button>
-              )}
+              ) : isPreview ? (
+                <p className="text-xs text-muted-foreground mt-2">
+                  Add your WhatsApp number in the <strong>RSVP &amp; URL</strong> tab to enable guest responses.
+                </p>
+              ) : null}
             </div>
           </RevealOnScroll>
         </section>

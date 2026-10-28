@@ -218,16 +218,11 @@ export default function BohoFloral({ data, weddingId, isPreview }: TemplateProps
                 >
                   RSVP via WhatsApp
                 </a>
-              ) : (
-                <button
-                  type="button"
-                  disabled={isPreview}
-                  className="px-8 py-3 rounded-full text-white text-xs font-sans font-semibold tracking-wider uppercase shadow-md transition-all duration-300 hover:scale-105 tap-bounce"
-                  style={{ backgroundColor: primary }}
-                >
-                  {isPreview ? "RSVP (Active upon publish)" : "Send RSVP"}
-                </button>
-              )}
+              ) : isPreview ? (
+                <p className="text-xs text-muted-foreground mt-2">
+                  Add your WhatsApp number in the <strong>RSVP &amp; URL</strong> tab to enable guest responses.
+                </p>
+              ) : null}
             </div>
           </RevealOnScroll>
         </section>

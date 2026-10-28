@@ -276,16 +276,11 @@ export default function RoyalRajwada({ data, weddingId, isPreview }: TemplatePro
                 >
                   RSVP via WhatsApp
                 </a>
-              ) : (
-                <button
-                  type="button"
-                  disabled={isPreview}
-                  className="px-6 py-3 rounded-full text-white text-sm font-semibold tracking-wide shadow-md transition-all duration-300 hover:scale-105 tap-bounce"
-                  style={{ backgroundColor: primary }}
-                >
-                  {isPreview ? "RSVP (Active upon publish)" : "Send RSVP"}
-                </button>
-              )}
+              ) : isPreview ? (
+                <p className="text-xs text-muted-foreground mt-2">
+                  Add your WhatsApp number in the <strong>RSVP &amp; URL</strong> tab to enable guest responses.
+                </p>
+              ) : null}
             </div>
           </RevealOnScroll>
         </section>

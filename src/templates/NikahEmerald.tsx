@@ -12,6 +12,7 @@ function formatDate(dateStr?: string) {
     const d = new Date(dateStr);
     if (isNaN(d.getTime())) return dateStr;
     return d.toLocaleDateString("en-US", {
+      timeZone: "UTC",
       weekday: "long",
       year: "numeric",
       month: "long",
@@ -159,11 +160,11 @@ export default function NikahEmerald({ data, weddingId, isPreview }: TemplatePro
         {/* Editorial Couple Announcement */}
         <div className="flex flex-col items-center mt-4 mb-6">
           <h1 className="text-3xl md:text-5xl text-[#1C1A17] tracking-tight font-serif font-bold">
-            {couple.groomName || "Muhammed Rahees"}
+            {couple.groomName}
           </h1>
           <span className="text-xl italic text-[#775a19] my-1 font-serif">&amp;</span>
           <h1 className="text-3xl md:text-5xl text-[#1C1A17] tracking-tight font-serif font-bold">
-            {couple.brideName || "Fathima Rimza"}
+            {couple.brideName}
           </h1>
           <p className="text-xs text-[#5a544b] max-w-xs mt-3 font-light leading-relaxed">
             Together with their families request the honor of your presence to celebrate their holy union
@@ -271,17 +272,12 @@ export default function NikahEmerald({ data, weddingId, isPreview }: TemplatePro
               👤
             </div>
             <span className="text-[10px] uppercase tracking-wider text-[#775a19] font-bold">Groom</span>
-            <h3 className="text-xl text-[#1C1A17] mt-1 font-serif font-semibold">{couple.groomName || "Muhammed Rahees"}</h3>
-            <p className="text-xs text-[#775a19] mt-0.5 tracking-wide">
-              {couple.groomBio || "Ottakkanniyil (H)"}
-            </p>
-            <div className="w-16 h-[1px] bg-[#C5A059]/30 my-4" />
-            <div className="flex flex-col gap-1 w-full text-[#1C1A17]/80 text-xs">
-              <div className="flex items-center justify-center gap-1.5 flex-wrap">
-                <span className="font-semibold text-[#1C1A17]">Family:</span>
-                <span>Kunhimoideen &amp; Sainaba</span>
-              </div>
-            </div>
+            <h3 className="text-xl text-[#1C1A17] mt-1 font-serif font-semibold">{couple.groomName}</h3>
+            {couple.groomBio && (
+              <p className="text-xs text-[#775a19] mt-1 tracking-wide">
+                {couple.groomBio}
+              </p>
+            )}
           </RevealOnScroll>
 
           {/* Bride Card */}
@@ -290,17 +286,12 @@ export default function NikahEmerald({ data, weddingId, isPreview }: TemplatePro
               🧕
             </div>
             <span className="text-[10px] uppercase tracking-wider text-[#775a19] font-bold">Bride</span>
-            <h3 className="text-xl text-[#1C1A17] mt-1 font-serif font-semibold">{couple.brideName || "Fathima Rimza"}</h3>
-            <p className="text-xs text-[#775a19] mt-0.5 tracking-wide">
-              {couple.brideBio || "Ulleeri (H)"}
-            </p>
-            <div className="w-16 h-[1px] bg-[#C5A059]/30 my-4" />
-            <div className="flex flex-col gap-1 w-full text-[#1C1A17]/80 text-xs">
-              <div className="flex items-center justify-center gap-1.5">
-                <span className="font-semibold text-[#1C1A17]">Family:</span>
-                <span>Yousef &amp; Fathima</span>
-              </div>
-            </div>
+            <h3 className="text-xl text-[#1C1A17] mt-1 font-serif font-semibold">{couple.brideName}</h3>
+            {couple.brideBio && (
+              <p className="text-xs text-[#775a19] mt-1 tracking-wide">
+                {couple.brideBio}
+              </p>
+            )}
           </RevealOnScroll>
         </div>
       </section>
@@ -408,6 +399,38 @@ export default function NikahEmerald({ data, weddingId, isPreview }: TemplatePro
         </RevealOnScroll>
       </section>
 
+      
+      {/* RSVP SECTION */}
+      {rsvpConfig?.enabled && (
+        <section className="px-4 py-8 flex flex-col items-center max-w-xl mx-auto text-center">
+          <RevealOnScroll direction="up" className="w-full bg-white rounded-2xl p-6 shadow-sm border border-[#C5A059]/30">
+            <span className="text-xl">✉</span>
+            <h2 className="text-xl text-[#0F382A] font-serif font-bold mt-1">Join the Celebration</h2>
+            {rsvpConfig.deadline && (
+              <p className="text-xs uppercase tracking-wider text-[#775a19] mt-1">
+                Kindly respond by {formatDate(rsvpConfig.deadline)}
+              </p>
+            )}
+            <div className="mt-4 flex flex-col items-center gap-2">
+              {rsvpConfig.whatsappNumber ? (
+                <a
+                  href={`https://wa.me/${rsvpConfig.whatsappNumber.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(`Hello! I would love to RSVP for ${couple.brideName} & ${couple.groomName}'s wedding!`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-6 py-2.5 rounded-full text-white text-xs font-semibold tracking-wider uppercase bg-[#0F382A] hover:bg-[#154d3a] shadow-md transition-all duration-300"
+                >
+                  RSVP via WhatsApp
+                </a>
+              ) : isPreview ? (
+                <p className="text-xs text-[#775a19]">
+                  Add your WhatsApp number in the <strong>RSVP &amp; URL</strong> tab to enable guest responses.
+                </p>
+              ) : null}
+            </div>
+          </RevealOnScroll>
+        </section>
+      )}
+
       {/* SECTION 6: SACRED FOOTER & DUA */}
       <footer className="flex flex-col items-center text-center px-4 pt-6 pb-12 bg-[#FAF8F5] max-w-xl mx-auto">
         {/* Traditional Islamic Wedding Dua */}
@@ -436,7 +459,7 @@ export default function NikahEmerald({ data, weddingId, isPreview }: TemplatePro
             {couple.hashtag || `#${(couple.groomName || "Groom").split(" ")[0]}Weds${(couple.brideName || "Bride").split(" ")[0]}`}
           </p>
           <span className="text-[10px] tracking-widest text-[#775a19] uppercase font-medium">
-            Kerala, India • {formattedDate || "October 2026"}
+            {events?.[0]?.venueAddress ? `${events[0].venueAddress} • ` : ""}{formattedDate}
           </span>
         </div>
       </footer>

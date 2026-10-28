@@ -15,6 +15,7 @@ function formatDate(dateStr?: string) {
     const d = new Date(dateStr);
     if (isNaN(d.getTime())) return dateStr;
     return d.toLocaleDateString("en-US", {
+      timeZone: "UTC",
       weekday: "long",
       year: "numeric",
       month: "long",
@@ -224,15 +225,25 @@ export default function BentoClay({ data, weddingId, isPreview }: TemplateProps)
     seconds: "00",
   });
 
+  const countdownTarget = useMemo(() => {
+    const firstEvent = events?.[0];
+    if (firstEvent?.date) {
+      const time = firstEvent.startTime && /^([01]\d|2[0-3]):[0-5]\d$/.test(firstEvent.startTime)
+        ? `${firstEvent.startTime}:00`
+        : "09:00:00";
+      const parsed = Date.parse(`${firstEvent.date}T${time}+05:30`);
+      if (Number.isFinite(parsed)) return parsed;
+    }
+    if (couple.weddingDate) {
+      const parsed = Date.parse(`${couple.weddingDate}T09:00:00+05:30`);
+      if (Number.isFinite(parsed)) return parsed;
+    }
+    return Date.now() + 30 * 24 * 60 * 60 * 1000;
+  }, [events, couple.weddingDate]);
+
   useEffect(() => {
-    const target = couple.weddingDate
-      ? new Date(couple.weddingDate).getTime()
-      : Date.now() + 30 * 24 * 60 * 60 * 1000;
-
     const tick = () => {
-      const now = Date.now();
-      const diff = target - now;
-
+      const diff = countdownTarget - Date.now();
       if (diff > 0) {
         const days = Math.floor(diff / (1000 * 60 * 60 * 24));
         const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -253,7 +264,7 @@ export default function BentoClay({ data, weddingId, isPreview }: TemplateProps)
     tick();
     const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
-  }, [couple.weddingDate]);
+  }, [countdownTarget]);
 
   /* ── music toggle ── */
   const toggleMusic = useCallback(() => {
@@ -527,10 +538,10 @@ export default function BentoClay({ data, weddingId, isPreview }: TemplateProps)
                     <div className="flex items-center gap-2">
                       <div className={`w-10 h-10 rounded-xl flex flex-col items-center justify-center text-white text-xs font-bold font-sans ${isEven ? "bg-[#8a4b36]" : "bg-[#536251]"}`}>
                         <span className="text-[10px] leading-none">
-                          {evt.date ? new Date(evt.date).toLocaleDateString("en-US", { month: "short" }).toUpperCase() : "TBD"}
+                          {evt.date ? new Date(evt.date).toLocaleDateString("en-US", { timeZone: "UTC", month: "short" }).toUpperCase() : "TBD"}
                         </span>
                         <span className="text-sm leading-none font-serif">
-                          {evt.date ? new Date(evt.date).getDate() : "—"}
+                          {evt.date ? new Date(evt.date).getUTCDate() : "—"}
                         </span>
                       </div>
                       <div>
@@ -794,7 +805,7 @@ export default function BentoClay({ data, weddingId, isPreview }: TemplateProps)
         <a
           href="#schedule"
           onClick={() => setActiveNav("schedule")}
-          className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-sans font-medium transition-colors ${
+          className={`flex items-center gap-1.5 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs font-sans font-medium whitespace-nowrap transition-colors ${
             activeNav === "schedule"
               ? "bg-[#8a4b36] text-white"
               : "text-white/60 hover:text-white/90"
@@ -810,7 +821,7 @@ export default function BentoClay({ data, weddingId, isPreview }: TemplateProps)
           target={firstEventMapUrl.startsWith("http") ? "_blank" : undefined}
           rel={firstEventMapUrl.startsWith("http") ? "noopener noreferrer" : undefined}
           onClick={() => setActiveNav("directions")}
-          className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-sans font-medium transition-colors ${
+          className={`flex items-center gap-1.5 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs font-sans font-medium whitespace-nowrap transition-colors ${
             activeNav === "directions"
               ? "bg-[#536251] text-white"
               : "text-white/60 hover:text-white/90"
@@ -826,7 +837,7 @@ export default function BentoClay({ data, weddingId, isPreview }: TemplateProps)
           target="_blank"
           rel="noopener noreferrer"
           onClick={() => setActiveNav("share")}
-          className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-sans font-medium transition-colors ${
+          className={`flex items-center gap-1.5 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs font-sans font-medium whitespace-nowrap transition-colors ${
             activeNav === "share"
               ? "bg-[#a8624c] text-white"
               : "text-white/60 hover:text-white/90"

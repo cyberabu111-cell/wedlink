@@ -46,10 +46,11 @@ export default function StudioEditorClient({
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [statusMessage, setStatusMessage] = useState<string>('');
   const [isPending, startTransition] = useTransition();
+  const isDirty = savedSnapshot !== JSON.stringify({ data: formData, template: templateId, slug });
 
   const PreviewTemplate = TEMPLATE_REGISTRY[templateId] || TEMPLATE_REGISTRY['royal-rajwada'];
 
-  // Restore draft if returning from login
+  // Restore draft if returning from login or reload (only for 'new' invitation drafts)
   useEffect(() => {
     if (initialWeddingId === 'new') {
       try {
@@ -59,13 +60,26 @@ export default function StudioEditorClient({
           if (parsed?.formData) setFormData(parsed.formData);
           if (parsed?.templateId) setTemplateId(parsed.templateId);
           if (parsed?.slug) setSlug(parsed.slug);
-          localStorage.removeItem('everafter_pending_draft');
         }
       } catch {
         // ignore
       }
     }
   }, [initialWeddingId]);
+
+  // Continuously persist unsaved draft for 'new' invitations to localStorage
+  useEffect(() => {
+    if (currentWeddingId === 'new') {
+      try {
+        localStorage.setItem(
+          'everafter_pending_draft',
+          JSON.stringify({ formData, templateId, slug, updatedAt: Date.now() })
+        );
+      } catch {
+        // ignore
+      }
+    }
+  }, [formData, templateId, slug, currentWeddingId]);
 
   // Updaters for nested state
   const updateCoupleField = (field: keyof WeddingData['couple'], value: string) => {
@@ -176,6 +190,15 @@ export default function StudioEditorClient({
     }));
   };
 
+  /** Persist current editor state to localStorage so it can be restored after login. */
+  const savePendingDraft = () => {
+    try {
+      localStorage.setItem('everafter_pending_draft', JSON.stringify({ formData, templateId, slug }));
+    } catch {
+      // ignore
+    }
+  };
+
   const handleSave = () => {
     setSaveStatus('saving');
     setStatusMessage('');
@@ -207,6 +230,7 @@ export default function StudioEditorClient({
         if (res.slug) setSlug(current => current === slug ? res.slug! : current);
         setSavedSnapshot(JSON.stringify({ data: formData, template: templateId, slug: res.slug || slug }));
         window.history.replaceState(null, '', `/studio/${res.weddingId}`);
+        try { localStorage.removeItem('everafter_pending_draft'); } catch {}
         setSaveStatus('saved');
         setTimeout(() => setSaveStatus('idle'), 3000);
       } else {
@@ -243,6 +267,15 @@ export default function StudioEditorClient({
               </Link>
             )}
 
+            <span className="text-[11px] text-slate-500 hidden sm:inline font-medium">
+              {saveStatus === 'saving'
+                ? 'Saving to cloud...'
+                : isDirty
+                ? '● Draft saved on this device'
+                : userEmail
+                ? '✓ Saved in account'
+                : '✓ Saved'}
+            </span>
             <button
               onClick={handleSave}
               disabled={isPending || saveStatus === 'saving'}
@@ -282,13 +315,18 @@ export default function StudioEditorClient({
               </form>
             </span>
           ) : (
-            <Link href={`/login?next=${encodeURIComponent(typeof window !== 'undefined' ? window.location.pathname : '/studio/new')}`} style={{ fontWeight: 650, color: '#663c51' }}>
+            <Link
+              href={`/login?next=${encodeURIComponent(typeof window !== 'undefined' ? window.location.pathname : '/studio/new')}`}
+              style={{ fontWeight: 650, color: '#663c51' }}
+              onClick={savePendingDraft}
+            >
               Sign in to save →
             </Link>
           )}
         </div>
+        
         <PublishPayButton weddingId={currentWeddingId} slug={slug} isPaid={isPaid}
-          dirty={savedSnapshot !== JSON.stringify({ data: formData, template: templateId, slug })}
+          dirty={isDirty}
           returnedFromPayment={returnedFromPayment} onPaid={setIsPaid} />
         <div className="studio-design-picker">
           <label htmlFor="design-choice" className="text-xs font-semibold text-slate-600">Your design</label>
@@ -855,7 +893,7 @@ export default function StudioEditorClient({
                     placeholder="+919876543210"
                     className="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-xs bg-white"
                   />
-                  <p className="text-[11px] text-slate-400 mt-1">If provided, guests can RSVP via WhatsApp message directly.</p>
+                  <p className="text-[11px] text-slate-500 mt-1">Guests can RSVP instantly via WhatsApp with pre-filled event attendance details.</p>
                 </div>
               </div>
             </div>
