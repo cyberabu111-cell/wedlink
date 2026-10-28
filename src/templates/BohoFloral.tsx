@@ -23,7 +23,11 @@ function formatDate(dateStr?: string) {
 }
 
 export default function BohoFloral({ data, weddingId = "wedding", isPreview }: WeddingTemplateProps) {
-  const { couple, story, events, gallery, theme, rsvpConfig } = data;
+  const { couple, story, events, gallery, theme, rsvpConfig, sections } = data;
+  const showStory = sections?.showStory !== false;
+  const showGallery = sections?.showGallery !== false;
+  const showEvents = sections?.showEvents !== false;
+  const showRsvp = sections?.showRsvp !== false && Boolean(rsvpConfig?.enabled !== false);
   const primary = theme?.primaryColor || "#c86d51";
   const secondary = theme?.secondaryColor || "#e29578";
 
@@ -103,7 +107,7 @@ export default function BohoFloral({ data, weddingId = "wedding", isPreview }: W
       </section>
 
       {/* OUR STORY */}
-      {story?.content && (
+      {showStory && story?.content && (
         <section className="px-6 py-16 bg-[#f7ede7] border-y border-[#ebd5cb]">
           <RevealOnScroll direction="up" className="max-w-xl mx-auto text-center">
             <h2 className="text-3xl text-[#462820]">
@@ -129,7 +133,7 @@ export default function BohoFloral({ data, weddingId = "wedding", isPreview }: W
       )}
 
       {/* EVENTS */}
-      {events && events.length > 0 && (
+      {showEvents && events && events.length > 0 && (
         <section className="px-6 py-20 max-w-3xl mx-auto">
           <RevealOnScroll direction="up" className="text-center mb-12">
             <span className="text-xs uppercase tracking-[0.2em] font-sans font-medium text-[#a06859]">Timeline</span>
@@ -177,7 +181,7 @@ export default function BohoFloral({ data, weddingId = "wedding", isPreview }: W
       )}
 
       {/* GALLERY */}
-      {gallery && gallery.length > 0 && (
+      {showGallery && gallery && gallery.length > 0 && (
         <section className="px-6 py-16 bg-[#f8efe9] border-t border-[#ecd7cd]">
           <div className="max-w-4xl mx-auto text-center">
             <RevealOnScroll direction="up">
@@ -196,7 +200,7 @@ export default function BohoFloral({ data, weddingId = "wedding", isPreview }: W
       )}
 
       {/* RSVP */}
-      {rsvpConfig?.enabled && (
+      {showRsvp && (
         <section className="px-6 py-20 text-center max-w-md mx-auto">
           <RevealOnScroll direction="up">
             <span className="text-2xl animate-float-gentle inline-block">🌿</span>

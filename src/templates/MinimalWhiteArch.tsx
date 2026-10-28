@@ -87,6 +87,15 @@ export default function MinimalWhiteArch({
 }: WeddingTemplateProps) {
   const rawData = data as any;
 
+  /* ── 0. Section Visibility Flags ── */
+  const sections = (rawData.sections as any) || {};
+  const showCountdown = sections.showCountdown !== false;
+  const showStory = sections.showStory !== false;
+  const showGallery = sections.showGallery !== false;
+  const showEvents = sections.showEvents !== false;
+  const showRsvp = sections.showRsvp !== false && Boolean(rawData.rsvpConfig?.enabled !== false);
+  const showMusic = sections.showMusic !== false;
+
   /* ── 1. Normalize Props safely ── */
   const couple = {
     brideName: rawData.couple?.brideName || "The Bride",
@@ -236,7 +245,7 @@ export default function MinimalWhiteArch({
   const handleOpenInvitation = () => {
     setIsOpen(true);
     onTrackEvent?.("page_view");
-    if (hero.bgMusicUrl) {
+    if (showMusic && hero.bgMusicUrl) {
       if (!audioRef.current) {
         audioRef.current = new Audio(hero.bgMusicUrl);
         audioRef.current.loop = true;
@@ -249,7 +258,7 @@ export default function MinimalWhiteArch({
   };
 
   const toggleAudio = () => {
-    if (!hero.bgMusicUrl) return;
+    if (!showMusic || !hero.bgMusicUrl) return;
     if (!audioRef.current) {
       audioRef.current = new Audio(hero.bgMusicUrl);
       audioRef.current.loop = true;
@@ -385,7 +394,7 @@ export default function MinimalWhiteArch({
       {/* ─────────────────────────────────────────────────────────────
           FLOATING AUDIO MUTE/UNMUTE BUTTON
           ───────────────────────────────────────────────────────────── */}
-      {hero.bgMusicUrl && (
+      {showMusic && hero.bgMusicUrl && (
         <aside aria-label="Audio controls">
           <motion.button
             initial={{ scale: 0 }}
@@ -473,36 +482,38 @@ export default function MinimalWhiteArch({
           </motion.div>
 
           {/* Live Minimal Countdown */}
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-          >
-            <div className="inline-grid grid-cols-4 gap-2 sm:gap-4 p-4 sm:p-6 rounded-2xl bg-white border border-[#C5A880]/30 shadow-sm">
-              {[
-                { label: "Days", value: timeLeft.days },
-                { label: "Hours", value: timeLeft.hours },
-                { label: "Mins", value: timeLeft.minutes },
-                { label: "Secs", value: timeLeft.seconds },
-              ].map((item, idx) => (
-                <div key={idx} className="flex flex-col items-center min-w-[55px] sm:min-w-[70px]">
-                  <span className="text-2xl sm:text-3xl font-serif font-light text-[#18181B]">
-                    {String(item.value).padStart(2, "0")}
-                  </span>
-                  <span className="text-[9px] sm:text-[10px] font-sans tracking-widest text-[#8C7355] uppercase font-semibold mt-1">
-                    {item.label}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </motion.div>
+          {showCountdown && (
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+            >
+              <div className="inline-grid grid-cols-4 gap-2 sm:gap-4 p-4 sm:p-6 rounded-2xl bg-white border border-[#C5A880]/30 shadow-sm">
+                {[
+                  { label: "Days", value: timeLeft.days },
+                  { label: "Hours", value: timeLeft.hours },
+                  { label: "Mins", value: timeLeft.minutes },
+                  { label: "Secs", value: timeLeft.seconds },
+                ].map((item, idx) => (
+                  <div key={idx} className="flex flex-col items-center min-w-[55px] sm:min-w-[70px]">
+                    <span className="text-2xl sm:text-3xl font-serif font-light text-[#18181B]">
+                      {String(item.value).padStart(2, "0")}
+                    </span>
+                    <span className="text-[9px] sm:text-[10px] font-sans tracking-widest text-[#8C7355] uppercase font-semibold mt-1">
+                      {item.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
         </div>
       </section>
 
       {/* ─────────────────────────────────────────────────────────────
           SECTION 3: COUPLE & STORY TIMELINE
           ───────────────────────────────────────────────────────────── */}
-      {(couple.brideBio || couple.groomBio || storyItems.length > 0) && (
+      {(couple.brideBio || couple.groomBio || (showStory && storyItems.length > 0)) && (
         <section className="py-24 px-4 sm:px-6 max-w-5xl mx-auto border-b border-[#C5A880]/20">
           <div className="text-center space-y-2 mb-16">
             <span className="text-[11px] font-sans uppercase tracking-[0.3em] text-[#8C7355] font-semibold">
@@ -550,7 +561,7 @@ export default function MinimalWhiteArch({
           </div>
 
           {/* Story Milestones */}
-          {storyItems.length > 0 && (
+          {showStory && storyItems.length > 0 && (
             <div className="space-y-10 max-w-2xl mx-auto">
               <div className="text-center space-y-2 mb-8">
                 <h3 className="text-2xl font-serif text-[#18181B]">Moments in Time</h3>
@@ -586,7 +597,8 @@ export default function MinimalWhiteArch({
       {/* ─────────────────────────────────────────────────────────────
           SECTION 4: EVENTS & VENUE CARDS (ANALYTICS HOOKS ATTACHED)
           ───────────────────────────────────────────────────────────── */}
-      <section className="py-24 px-4 sm:px-6 max-w-5xl mx-auto border-b border-[#C5A880]/20">
+      {showEvents && events.length > 0 && (
+        <section className="py-24 px-4 sm:px-6 max-w-5xl mx-auto border-b border-[#C5A880]/20">
         <div className="text-center space-y-2 mb-16">
           <span className="text-[11px] font-sans uppercase tracking-[0.3em] text-[#8C7355] font-semibold">
             Itinerary
@@ -717,11 +729,12 @@ export default function MinimalWhiteArch({
           })}
         </div>
       </section>
+      )}
 
       {/* ─────────────────────────────────────────────────────────────
           SECTION 5: PHOTO GALLERY
           ───────────────────────────────────────────────────────────── */}
-      {gallery.length > 0 && (
+      {showGallery && gallery.length > 0 && (
         <section className="py-24 px-4 sm:px-6 max-w-5xl mx-auto border-b border-[#C5A880]/20">
           <div className="text-center space-y-2 mb-16">
             <span className="text-[11px] font-sans uppercase tracking-[0.3em] text-[#8C7355] font-semibold">
@@ -781,7 +794,7 @@ export default function MinimalWhiteArch({
       {/* ─────────────────────────────────────────────────────────────
           SECTION 6: RSVP FORM
           ───────────────────────────────────────────────────────────── */}
-      {rsvpConfig.enabled && (
+      {showRsvp && (
         <section className="py-24 px-4 sm:px-6 max-w-2xl mx-auto">
           <div className="text-center space-y-2 mb-12">
             <span className="text-[11px] font-sans uppercase tracking-[0.3em] text-[#8C7355] font-semibold">

@@ -89,8 +89,17 @@ export default function MalabarRoyalGold({
   isPreview = false,
   onRsvpSubmit,
 }: WeddingTemplateProps) {
-  /* ── 1. Adapt and Normalize Data safely ── */
+  /* ── 0. Section Visibility Flags ── */
   const rawData = data as any;
+  const sections = (rawData.sections as any) || {};
+  const showCountdown = sections.showCountdown !== false;
+  const showStory = sections.showStory !== false;
+  const showGallery = sections.showGallery !== false;
+  const showEvents = sections.showEvents !== false;
+  const showRsvp = sections.showRsvp !== false && Boolean(rawData.rsvpConfig?.enabled !== false);
+  const showMusic = sections.showMusic !== false;
+
+  /* ── 1. Adapt and Normalize Data safely ── */
 
   const couple = {
     brideName: rawData.couple?.brideName || "The Bride",
@@ -241,7 +250,7 @@ export default function MalabarRoyalGold({
   /* ── Audio controls with browser autoplay policy unlock ── */
   const handleOpenInvitation = () => {
     setIsOpen(true);
-    if (hero.bgMusicUrl) {
+    if (showMusic && hero.bgMusicUrl) {
       if (!audioRef.current) {
         audioRef.current = new Audio(hero.bgMusicUrl);
         audioRef.current.loop = true;
@@ -254,7 +263,7 @@ export default function MalabarRoyalGold({
   };
 
   const toggleAudio = () => {
-    if (!hero.bgMusicUrl) return;
+    if (!showMusic || !hero.bgMusicUrl) return;
     if (!audioRef.current) {
       audioRef.current = new Audio(hero.bgMusicUrl);
       audioRef.current.loop = true;
@@ -399,7 +408,7 @@ export default function MalabarRoyalGold({
           FLOATING AUDIO MUTE/UNMUTE BUTTON
           Fixed in corner, pulses when playing
           ───────────────────────────────────────────────────────────── */}
-      {hero.bgMusicUrl && (
+      {showMusic && hero.bgMusicUrl && (
         <aside aria-label="Audio controls">
           <motion.button
             initial={{ scale: 0 }}
@@ -504,30 +513,32 @@ export default function MalabarRoyalGold({
           </motion.div>
 
           {/* Live Countdown Timer */}
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="pt-4"
-          >
-            <div className="inline-grid grid-cols-4 gap-2 sm:gap-4 p-4 sm:p-6 rounded-2xl bg-white/80 backdrop-blur-sm border border-[#D4AF37]/40 shadow-lg shadow-[#D4AF37]/5">
-              {[
-                { label: "Days", value: timeLeft.days },
-                { label: "Hours", value: timeLeft.hours },
-                { label: "Minutes", value: timeLeft.minutes },
-                { label: "Seconds", value: timeLeft.seconds },
-              ].map((item, idx) => (
-                <div key={idx} className="flex flex-col items-center min-w-[55px] sm:min-w-[75px]">
-                  <span className="text-2xl sm:text-4xl font-serif font-semibold text-[#1A1A1A]">
-                    {String(item.value).padStart(2, "0")}
-                  </span>
-                  <span className="text-[10px] sm:text-xs font-sans tracking-widest text-[#B8860B] uppercase font-medium mt-1">
-                    {item.label}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </motion.div>
+          {showCountdown && (
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="pt-4"
+            >
+              <div className="inline-grid grid-cols-4 gap-2 sm:gap-4 p-4 sm:p-6 rounded-2xl bg-white/80 backdrop-blur-sm border border-[#D4AF37]/40 shadow-lg shadow-[#D4AF37]/5">
+                {[
+                  { label: "Days", value: timeLeft.days },
+                  { label: "Hours", value: timeLeft.hours },
+                  { label: "Minutes", value: timeLeft.minutes },
+                  { label: "Seconds", value: timeLeft.seconds },
+                ].map((item, idx) => (
+                  <div key={idx} className="flex flex-col items-center min-w-[55px] sm:min-w-[75px]">
+                    <span className="text-2xl sm:text-4xl font-serif font-semibold text-[#1A1A1A]">
+                      {String(item.value).padStart(2, "0")}
+                    </span>
+                    <span className="text-[10px] sm:text-xs font-sans tracking-widest text-[#B8860B] uppercase font-medium mt-1">
+                      {item.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
         </div>
       </section>
 
@@ -535,7 +546,7 @@ export default function MalabarRoyalGold({
           SECTION 3: THE COUPLE & LOVE STORY
           Renders bride & groom profiles and milestone cards
           ───────────────────────────────────────────────────────────── */}
-      {(couple.brideBio || couple.groomBio || storyItems.length > 0) && (
+      {(couple.brideBio || couple.groomBio || (showStory && storyItems.length > 0)) && (
         <section className="py-20 px-4 sm:px-6 max-w-5xl mx-auto border-b border-[#D4AF37]/20">
           <div className="text-center space-y-3 mb-16">
             <span className="text-xs font-sans uppercase tracking-[0.25em] text-[#B8860B] font-semibold">
@@ -593,7 +604,7 @@ export default function MalabarRoyalGold({
           </div>
 
           {/* Story Milestones */}
-          {storyItems.length > 0 && (
+          {showStory && storyItems.length > 0 && (
             <div className="space-y-8">
               <div className="text-center space-y-2 mb-10">
                 <h3 className="text-2xl font-serif text-[#1A1A1A]">Our Journey of Love</h3>
@@ -633,7 +644,8 @@ export default function MalabarRoyalGold({
           SECTION 4: EVENTS & VENUE CARDS (CRUCIAL)
           Calendar links, .ics download, Google Maps directions & embed
           ───────────────────────────────────────────────────────────── */}
-      <section className="py-20 px-4 sm:px-6 max-w-5xl mx-auto border-b border-[#D4AF37]/20">
+      {showEvents && events.length > 0 && (
+        <section className="py-20 px-4 sm:px-6 max-w-5xl mx-auto border-b border-[#D4AF37]/20">
         <div className="text-center space-y-3 mb-16">
           <span className="text-xs font-sans uppercase tracking-[0.25em] text-[#B8860B] font-semibold">
             Program & Schedule
@@ -764,12 +776,13 @@ export default function MalabarRoyalGold({
           })}
         </div>
       </section>
+      )}
 
       {/* ─────────────────────────────────────────────────────────────
           SECTION 5: PHOTO GALLERY
           Opulent gold border grid with lightbox expansion
           ───────────────────────────────────────────────────────────── */}
-      {gallery.length > 0 && (
+      {showGallery && gallery.length > 0 && (
         <section className="py-20 px-4 sm:px-6 max-w-6xl mx-auto border-b border-[#D4AF37]/20">
           <div className="text-center space-y-3 mb-16">
             <span className="text-xs font-sans uppercase tracking-[0.25em] text-[#B8860B] font-semibold">
@@ -836,7 +849,7 @@ export default function MalabarRoyalGold({
           SECTION 6: INTERACTIVE RSVP SECTION
           Attending, meal preference, plus ones, message, and WhatsApp
           ───────────────────────────────────────────────────────────── */}
-      {rsvpConfig.enabled && (
+      {showRsvp && (
         <section className="py-20 px-4 sm:px-6 max-w-3xl mx-auto">
           <div className="text-center space-y-3 mb-12">
             <span className="text-xs font-sans uppercase tracking-[0.25em] text-[#B8860B] font-semibold">

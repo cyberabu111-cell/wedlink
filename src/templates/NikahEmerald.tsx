@@ -53,7 +53,12 @@ function downloadICS(title: string, desc: string, location: string, dateStr?: st
 }
 
 export default function NikahEmerald({ data, weddingId = "wedding", isPreview }: WeddingTemplateProps) {
-  const { couple, story, events, gallery, rsvpConfig } = data;
+  const { couple, story, events, gallery, rsvpConfig, sections } = data;
+  const showCountdown = sections?.showCountdown !== false;
+  const showStory = sections?.showStory !== false;
+  const showGallery = sections?.showGallery !== false;
+  const showEvents = sections?.showEvents !== false;
+  const showRsvp = sections?.showRsvp !== false && Boolean(rsvpConfig?.enabled !== false);
   const [blessingCount, setBlessingCount] = useState(0);
   const heartContainerRef = useRef<HTMLDivElement>(null);
 
@@ -201,6 +206,7 @@ export default function NikahEmerald({ data, weddingId = "wedding", isPreview }:
         </div>
 
         {/* Live Countdown Floating Pill */}
+        {showCountdown && (
         <div className="w-full max-w-xs mt-6 bg-white/95 backdrop-blur-md rounded-full px-4 py-3 shadow-[0_10px_30px_rgba(197,160,89,0.15)] border border-[#C5A059]/30 hover-lift transition-all">
           <div className="flex items-center justify-around text-center">
             <div className="flex flex-col">
@@ -224,6 +230,7 @@ export default function NikahEmerald({ data, weddingId = "wedding", isPreview }:
             </div>
           </div>
         </div>
+        )}
       </section>
 
       {/* SECTION 2: QURANIC VERSE BANNER */}
@@ -298,7 +305,7 @@ export default function NikahEmerald({ data, weddingId = "wedding", isPreview }:
 
       
       {/* SECTION: OUR STORY & MILESTONES (NIKAH) */}
-      {story?.content && (
+      {showStory && story?.content && (
         <section className="px-4 py-8 flex flex-col items-center max-w-xl mx-auto">
           <RevealOnScroll direction="up" className="w-full bg-white rounded-2xl p-6 shadow-sm border border-[#C5A059]/30 text-center">
             <span className="text-xl">❦</span>
@@ -326,7 +333,7 @@ export default function NikahEmerald({ data, weddingId = "wedding", isPreview }:
       )}
 
       {/* SECTION 4: CEREMONIES & CELEBRATIONS */}
-      {events && events.length > 0 && (
+      {showEvents && events && events.length > 0 && (
         <section className="px-4 py-8 flex flex-col items-center max-w-xl mx-auto">
           <RevealOnScroll direction="up" className="flex flex-col items-center mb-6 text-center">
             <span className="text-[10px] uppercase tracking-widest text-[#775a19] font-semibold">Program Schedule</span>
@@ -437,7 +444,7 @@ export default function NikahEmerald({ data, weddingId = "wedding", isPreview }:
       
       
       {/* SECTION: PHOTO GALLERY (NIKAH) */}
-      {gallery && gallery.length > 0 && (
+      {showGallery && gallery && gallery.length > 0 && (
         <section className="px-4 py-8 flex flex-col items-center max-w-xl mx-auto">
           <RevealOnScroll direction="up" className="w-full text-center">
             <span className="text-[10px] uppercase tracking-widest text-[#775a19] font-semibold">Captured Moments</span>
@@ -455,7 +462,7 @@ export default function NikahEmerald({ data, weddingId = "wedding", isPreview }:
       )}
 
       {/* RSVP SECTION */}
-      {rsvpConfig?.enabled && (
+      {showRsvp && (
         <section className="px-4 py-8 flex flex-col items-center max-w-xl mx-auto text-center">
           <RevealOnScroll direction="up" className="w-full bg-white rounded-2xl p-6 shadow-sm border border-[#C5A059]/30">
             <span className="text-xl">✉</span>

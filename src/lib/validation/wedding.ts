@@ -66,6 +66,14 @@ export const weddingDataSchema = z.object({
     askDietaryPreference: z.boolean(),
     whatsappNumber: z.string().regex(/^(?:\+?[1-9]\d{6,14})?$/).optional(),
   }).strict(),
+  sections: z.object({
+    showCountdown: z.boolean().optional(),
+    showStory: z.boolean().optional(),
+    showGallery: z.boolean().optional(),
+    showEvents: z.boolean().optional(),
+    showRsvp: z.boolean().optional(),
+    showMusic: z.boolean().optional(),
+  }).strict().optional(),
 }).strict();
 
 // These assertions fail compilation if the schema and blueprint diverge in either direction.

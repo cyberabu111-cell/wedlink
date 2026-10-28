@@ -42,6 +42,14 @@ export interface WeddingData {
     askDietaryPreference: boolean;
     whatsappNumber?: string;  // Optional: also send RSVP via WhatsApp
   };
+  sections?: {
+    showCountdown?: boolean;
+    showStory?: boolean;
+    showGallery?: boolean;
+    showEvents?: boolean;
+    showRsvp?: boolean;
+    showMusic?: boolean;
+  };
 }
 
 export interface WeddingTemplateProps {

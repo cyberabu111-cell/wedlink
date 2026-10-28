@@ -23,7 +23,11 @@ function formatDate(dateStr?: string) {
 }
 
 export default function MinimalSage({ data, weddingId = "wedding", isPreview }: WeddingTemplateProps) {
-  const { couple, story, events, gallery, theme, rsvpConfig } = data;
+  const { couple, story, events, gallery, theme, rsvpConfig, sections } = data;
+  const showStory = sections?.showStory !== false;
+  const showGallery = sections?.showGallery !== false;
+  const showEvents = sections?.showEvents !== false;
+  const showRsvp = sections?.showRsvp !== false && Boolean(rsvpConfig?.enabled !== false);
   const primary = theme?.primaryColor || "#385144";
   const secondary = theme?.secondaryColor || "#738b77";
 
@@ -97,7 +101,7 @@ export default function MinimalSage({ data, weddingId = "wedding", isPreview }: 
       </section>
 
       {/* OUR STORY */}
-      {story?.content && (
+      {showStory && story?.content && (
         <section className="px-6 py-20 bg-white border-y border-[#e5eae3]">
           <RevealOnScroll direction="up" className="max-w-xl mx-auto text-center">
             <h2 className="text-2xl @3xl:text-3xl font-light text-[#202923]">
@@ -126,7 +130,7 @@ export default function MinimalSage({ data, weddingId = "wedding", isPreview }: 
       )}
 
       {/* EVENTS */}
-      {events && events.length > 0 && (
+      {showEvents && events && events.length > 0 && (
         <section className="px-6 py-20 max-w-2xl mx-auto">
           <RevealOnScroll direction="up" className="text-center mb-14">
             <h2 className="text-2xl @3xl:text-3xl font-light text-[#222c25]">
@@ -175,7 +179,7 @@ export default function MinimalSage({ data, weddingId = "wedding", isPreview }: 
       )}
 
       {/* GALLERY */}
-      {gallery && gallery.length > 0 && (
+      {showGallery && gallery && gallery.length > 0 && (
         <section className="px-6 py-16 bg-white border-t border-[#e2e8e0]">
           <div className="max-w-4xl mx-auto text-center">
             <RevealOnScroll direction="up">
@@ -194,7 +198,7 @@ export default function MinimalSage({ data, weddingId = "wedding", isPreview }: 
       )}
 
       {/* RSVP */}
-      {rsvpConfig?.enabled && (
+      {showRsvp && (
         <section className="px-6 py-20 text-center max-w-md mx-auto">
           <RevealOnScroll direction="up">
             <h2 className="text-2xl font-light text-[#222a24]">Join Us</h2>

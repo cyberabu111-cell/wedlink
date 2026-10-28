@@ -209,7 +209,13 @@ function ShareIcon() {
    ═══════════════════════════════════════════════════════════════ */
 
 export default function BentoClay({ data, weddingId = "wedding", isPreview }: WeddingTemplateProps) {
-  const { couple, story, events, gallery, rsvpConfig, theme } = data;
+  const { couple, story, events, gallery, rsvpConfig, theme, sections } = data;
+  const showCountdown = sections?.showCountdown !== false;
+  const showStory = sections?.showStory !== false;
+  const showGallery = sections?.showGallery !== false;
+  const showEvents = sections?.showEvents !== false;
+  const showRsvp = sections?.showRsvp !== false && Boolean(rsvpConfig?.enabled !== false);
+  const showMusic = sections?.showMusic !== false;
 
   /* ── state ── */
   const [musicPlaying, setMusicPlaying] = useState(false);
@@ -350,7 +356,7 @@ View our wedding invitation: ${shareUrl}`
           Invitation
         </h1>
         <div className="flex items-center gap-3">
-          {theme?.backgroundMusicUrl && (
+          {showMusic && theme?.backgroundMusicUrl && (
             <button
               type="button"
               onClick={toggleMusic}
@@ -429,6 +435,7 @@ View our wedding invitation: ${shareUrl}`
       <section className="px-3 mt-4 max-w-lg mx-auto">
         <RevealOnScroll direction="up" className="grid grid-cols-5 gap-3">
           {/* Countdown card – 3/5 width */}
+          {showCountdown && (
           <div className="col-span-3 bg-white rounded-2xl p-4 shadow-[0_8px_24px_rgba(138,75,54,0.08)] border border-[#e7bea7]/40 flex flex-col justify-between hover-lift transition-all">
             <div className="flex items-center gap-1.5 mb-3">
               <span className="text-xs">⏳</span>
@@ -460,9 +467,10 @@ View our wedding invitation: ${shareUrl}`
               />
             </div>
           </div>
+          )}
 
-          {/* Tap-to-Bless "Send Dua" widget – 2/5 width */}
-          <div className="col-span-2 relative bg-gradient-to-br from-[#536251] to-[#3e5240] rounded-2xl p-4 shadow-[0_8px_24px_rgba(83,98,81,0.15)] flex flex-col items-center justify-center text-center overflow-hidden hover-lift transition-all">
+          {/* Tap-to-Bless "Send Dua" widget */}
+          <div className={`${showCountdown ? "col-span-2" : "col-span-5"} relative bg-gradient-to-br from-[#536251] to-[#3e5240] rounded-2xl p-4 shadow-[0_8px_24px_rgba(83,98,81,0.15)] flex flex-col items-center justify-center text-center overflow-hidden hover-lift transition-all`}>
             <div ref={heartContainerRef} className="absolute inset-0 pointer-events-none overflow-hidden" />
             <span className="text-2xl mb-1">🤲</span>
             <span className="text-[9px] uppercase tracking-widest text-[#d4e4ce] font-bold font-sans mb-2">
@@ -516,11 +524,10 @@ View our wedding invitation: ${shareUrl}`
           </span>
         </RevealOnScroll>
       </section>
-
       {/* ╔══════════════════════════════════════════════════════╗
           ║  5 · SACRED CEREMONIES / EVENT CARDS                 ║
           ╚══════════════════════════════════════════════════════╝ */}
-      {events && events.length > 0 && (
+      {showEvents && events && events.length > 0 && (
         <section id="schedule" className="px-3 mt-8 max-w-lg mx-auto">
           <RevealOnScroll direction="up" className="flex flex-col items-center mb-6 text-center">
             <span className="text-[10px] uppercase tracking-widest text-[#8a4b36] font-semibold font-sans">
@@ -722,11 +729,10 @@ View our wedding invitation: ${shareUrl}`
           </a>
         </RevealOnScroll>
       </section>
-
       {/* ╔══════════════════════════════════════════════════════╗
           ║  8 · GALLERY SECTION (if photos exist)              ║
           ╚══════════════════════════════════════════════════════╝ */}
-      {gallery && gallery.length > 0 && (
+      {showGallery && gallery && gallery.length > 0 && (
         <section className="px-3 mt-4 mb-8 max-w-lg mx-auto">
           <RevealOnScroll direction="up" className="flex flex-col items-center mb-4 text-center">
             <span className="text-[10px] uppercase tracking-widest text-[#8a4b36] font-semibold font-sans">
@@ -755,11 +761,10 @@ View our wedding invitation: ${shareUrl}`
           </div>
         </section>
       )}
-
       {/* ╔══════════════════════════════════════════════════════╗
           ║  9 · OUR STORY (if story content exists)            ║
           ╚══════════════════════════════════════════════════════╝ */}
-      {story && (story.content || (story.milestones && story.milestones.length > 0)) && (
+      {showStory && story && (story.content || (story.milestones && story.milestones.length > 0)) && (
         <section className="px-3 mt-4 mb-8 max-w-lg mx-auto">
           <RevealOnScroll direction="up">
             <div className="flex flex-col items-center mb-4 text-center">
@@ -811,7 +816,7 @@ View our wedding invitation: ${shareUrl}`
       )}
 
       {/* 9.5 · RSVP CARD */}
-      {rsvpConfig?.enabled && (
+      {showRsvp && (
         <section className="px-3 mt-6 max-w-lg mx-auto">
           <RevealOnScroll direction="up" className="bg-white rounded-3xl p-6 shadow-[0_12px_32px_rgba(138,75,54,0.08)] border border-[#e7bea7]/40 text-center">
             <span className="text-2xl">💌</span>

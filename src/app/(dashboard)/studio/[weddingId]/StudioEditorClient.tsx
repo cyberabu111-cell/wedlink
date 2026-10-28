@@ -23,6 +23,65 @@ interface StudioEditorClientProps {
 
 type TabKey = 'couple' | 'story' | 'events' | 'gallery' | 'theme' | 'rsvp';
 
+function SectionToggleCard({
+  title,
+  description,
+  enabled,
+  onChange,
+  badge,
+}: {
+  title: string;
+  description: string;
+  enabled: boolean;
+  onChange: (enabled: boolean) => void;
+  badge?: string;
+}) {
+  return (
+    <div
+      className={`p-4 rounded-xl border transition-all ${
+        enabled
+          ? 'bg-slate-50 border-slate-200'
+          : 'bg-amber-50/70 border-amber-200/80 shadow-xs'
+      }`}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-semibold text-xs text-slate-800">{title}</span>
+            {badge && (
+              <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-slate-200 text-slate-700">
+                {badge}
+              </span>
+            )}
+            {!enabled && (
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-200 text-amber-900">
+                Hidden on Website
+              </span>
+            )}
+          </div>
+          <p className="text-[11px] text-slate-500 leading-relaxed">{description}</p>
+        </div>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={enabled}
+          aria-label={`Toggle ${title}`}
+          onClick={() => onChange(!enabled)}
+          className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 ${
+            enabled ? 'bg-slate-900' : 'bg-slate-300'
+          }`}
+        >
+          <span
+            className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+              enabled ? 'translate-x-5' : 'translate-x-0'
+            }`}
+          />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function StudioEditorClient({
   initialData,
   initialTemplateId,
@@ -79,6 +138,16 @@ export default function StudioEditorClient({
 
   const isDirty = savedSnapshot !== JSON.stringify({ data: formData, template: templateId, slug });
 
+  const updateSectionVisibility = (key: keyof NonNullable<WeddingData['sections']>, value: boolean) => {
+    setFormData((prev) => ({
+      ...prev,
+      sections: {
+        ...(prev.sections || {}),
+        [key]: value,
+      },
+    }));
+  };
+
   const PreviewTemplate = getTemplateComponent(templateId);
 
   // Publish-readiness checklist calculation
@@ -87,13 +156,15 @@ export default function StudioEditorClient({
     if (!formData.couple.brideName.trim()) missing.push({ label: "Bride's Name", tab: 'couple' });
     if (!formData.couple.groomName.trim()) missing.push({ label: "Groom's Name", tab: 'couple' });
     if (!formData.couple.weddingDate) missing.push({ label: "Wedding Date", tab: 'couple' });
-    if (formData.events.length === 0) {
-      missing.push({ label: "At least one ceremony event", tab: 'events' });
-    } else {
-      const first = formData.events[0];
-      if (!first.eventName.trim()) missing.push({ label: "Ceremony Name", tab: 'events' });
-      if (!first.date) missing.push({ label: "Ceremony Date", tab: 'events' });
-      if (!first.venueName.trim()) missing.push({ label: "Venue Name", tab: 'events' });
+    if (formData.sections?.showEvents !== false) {
+      if (formData.events.length === 0) {
+        missing.push({ label: "At least one ceremony event", tab: 'events' });
+      } else {
+        const first = formData.events[0];
+        if (!first.eventName.trim()) missing.push({ label: "Ceremony Name", tab: 'events' });
+        if (!first.date) missing.push({ label: "Ceremony Date", tab: 'events' });
+        if (!first.venueName.trim()) missing.push({ label: "Venue Name", tab: 'events' });
+      }
     }
     if (!slug.trim()) missing.push({ label: "URL Slug", tab: 'rsvp' });
     return missing;
@@ -546,6 +617,15 @@ export default function StudioEditorClient({
                   />
                   <p className="text-[11px] text-slate-400 mt-1">Recommended portrait photo (HTTPS image link).</p>
                 </div>
+
+                <div className="pt-2 border-t border-slate-200">
+                  <SectionToggleCard
+                    title="Live Countdown Timer"
+                    description="Display a live ticking countdown clock down to your wedding date."
+                    enabled={formData.sections?.showCountdown !== false}
+                    onChange={(val) => updateSectionVisibility('showCountdown', val)}
+                  />
+                </div>
               </div>
 
               <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-4">
@@ -577,6 +657,25 @@ export default function StudioEditorClient({
           {/* TAB: STORY & MILESTONES */}
           {activeTab === 'story' && (
             <div className="space-y-5">
+              <SectionToggleCard
+                title="Story & Milestones Section"
+                description="Turn this section on or off. When turned off, the story and milestones are hidden from your public invitation."
+                enabled={formData.sections?.showStory !== false}
+                onChange={(val) => updateSectionVisibility('showStory', val)}
+              />
+
+              {formData.sections?.showStory === false && (
+                <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-800 flex items-center justify-between">
+                  <span>This section is currently <strong>turned off</strong> on your website. Your story drafts are safely kept here.</span>
+                  <button
+                    type="button"
+                    onClick={() => updateSectionVisibility('showStory', true)}
+                    className="font-semibold underline ml-2 hover:text-amber-900 cursor-pointer"
+                  >
+                    Turn On
+                  </button>
+                </div>
+              )}
               <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-4">
                 <h3 className="font-semibold text-sm text-slate-800">Our Story</h3>
                 <div>
@@ -800,6 +899,25 @@ export default function StudioEditorClient({
           {/* TAB: GALLERY */}
           {activeTab === 'gallery' && (
             <div className="space-y-5">
+              <SectionToggleCard
+                title="Photo Gallery Section"
+                description="Turn photo gallery on or off. When turned off, the gallery section will not be visible on your website."
+                enabled={formData.sections?.showGallery !== false}
+                onChange={(val) => updateSectionVisibility('showGallery', val)}
+              />
+
+              {formData.sections?.showGallery === false && (
+                <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-800 flex items-center justify-between">
+                  <span>The photo gallery is currently <strong>turned off</strong> on your website.</span>
+                  <button
+                    type="button"
+                    onClick={() => updateSectionVisibility('showGallery', true)}
+                    className="font-semibold underline ml-2 hover:text-amber-900 cursor-pointer"
+                  >
+                    Turn On
+                  </button>
+                </div>
+              )}
               <div className="flex items-center justify-between">
                 <h3 className="font-semibold text-sm text-slate-800">Photo Gallery</h3>
               </div>
@@ -913,6 +1031,32 @@ export default function StudioEditorClient({
                   <option value="playfair">Playfair / Editorial (High Fashion)</option>
                 </select>
               </div>
+
+              <div className="pt-4 border-t border-slate-200 space-y-4">
+                <SectionToggleCard
+                  title="Background Music Player"
+                  description="Enable floating background audio player with mute/unmute control."
+                  enabled={formData.sections?.showMusic !== false}
+                  onChange={(val) => updateSectionVisibility('showMusic', val)}
+                />
+                <div>
+                  <label htmlFor="editor-music-url" className="text-xs font-medium text-slate-600">Background Audio URL (.mp3)</label>
+                  <input
+                    id="editor-music-url"
+                    type="url"
+                    value={formData.theme.backgroundMusicUrl || ''}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        theme: { ...prev.theme, backgroundMusicUrl: e.target.value },
+                      }))
+                    }
+                    placeholder="https://example.com/wedding-audio.mp3"
+                    className="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-xs bg-white"
+                  />
+                  <p className="text-[11px] text-slate-400 mt-1">Direct audio URL (MP3 or AAC). Plays upon opening the invitation.</p>
+                </div>
+              </div>
             </div>
           )}
 
@@ -941,20 +1085,19 @@ export default function StudioEditorClient({
 
               <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-4">
                 <h3 className="font-semibold text-sm text-slate-800">RSVP Configuration</h3>
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={formData.rsvpConfig.enabled}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        rsvpConfig: { ...prev.rsvpConfig, enabled: e.target.checked },
-                      }))
-                    }
-                    className="w-4 h-4 rounded text-slate-900"
-                  />
-                  <span className="text-xs font-medium text-slate-700">Enable Guest RSVPs on Invitation</span>
-                </label>
+                <SectionToggleCard
+                  title="Guest RSVP Form"
+                  description="Turn RSVP on or off. When turned off, guests will not see an RSVP form on your website."
+                  enabled={formData.sections?.showRsvp !== false && formData.rsvpConfig.enabled}
+                  onChange={(val) => {
+                    updateSectionVisibility('showRsvp', val);
+                    setFormData((prev) => ({
+                      ...prev,
+                      rsvpConfig: { ...prev.rsvpConfig, enabled: val },
+                      sections: { ...(prev.sections || {}), showRsvp: val },
+                    }));
+                  }}
+                />
 
                 <div>
                   <label htmlFor="editor-field-22" className="text-xs font-medium text-slate-600">RSVP Deadline Date</label>

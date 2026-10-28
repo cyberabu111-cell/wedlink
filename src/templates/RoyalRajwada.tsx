@@ -24,7 +24,11 @@ function formatDate(dateStr?: string) {
 }
 
 export default function RoyalRajwada({ data, weddingId = "wedding", isPreview }: WeddingTemplateProps) {
-  const { couple, story, events, gallery, theme, rsvpConfig } = data;
+  const { couple, story, events, gallery, theme, rsvpConfig, sections } = data;
+  const showStory = sections?.showStory !== false;
+  const showGallery = sections?.showGallery !== false;
+  const showEvents = sections?.showEvents !== false;
+  const showRsvp = sections?.showRsvp !== false && Boolean(rsvpConfig?.enabled !== false);
   const primary = theme?.primaryColor || "#8B0000";
   const secondary = theme?.secondaryColor || "#D4AF37";
 
@@ -133,7 +137,7 @@ export default function RoyalRajwada({ data, weddingId = "wedding", isPreview }:
       </section>
 
       {/* OUR STORY */}
-      {story?.content && (
+      {showStory && story?.content && (
         <section className="px-6 py-16 bg-[#f4ebe1] border-y border-[#e2d2c1]">
           <RevealOnScroll direction="up" className="max-w-2xl mx-auto text-center">
             <span className="text-xs uppercase tracking-[0.25em] font-semibold" style={{ color: secondary }}>
@@ -167,7 +171,7 @@ export default function RoyalRajwada({ data, weddingId = "wedding", isPreview }:
       )}
 
       {/* EVENTS / CEREMONIES */}
-      {events && events.length > 0 && (
+      {showEvents && events && events.length > 0 && (
         <section className="px-6 py-20 max-w-4xl mx-auto">
           <RevealOnScroll direction="up" className="text-center mb-12">
             <span className="text-xs uppercase tracking-[0.25em] font-semibold" style={{ color: secondary }}>
@@ -229,7 +233,7 @@ export default function RoyalRajwada({ data, weddingId = "wedding", isPreview }:
       )}
 
       {/* GALLERY */}
-      {gallery && gallery.length > 0 && (
+      {showGallery && gallery && gallery.length > 0 && (
         <section className="px-6 py-16 bg-[#f5ede3] border-t border-[#e2d2c1]">
           <div className="max-w-5xl mx-auto text-center">
             <RevealOnScroll direction="up" className="mb-10">
@@ -253,7 +257,7 @@ export default function RoyalRajwada({ data, weddingId = "wedding", isPreview }:
       )}
 
       {/* RSVP FOOTER */}
-      {rsvpConfig?.enabled && (
+      {showRsvp && (
         <section className="px-6 py-20 text-center bg-white border-t border-[#e8d7c3]">
           <RevealOnScroll direction="up" className="max-w-md mx-auto">
             <span className="text-2xl animate-pulse-glow inline-block" style={{ color: secondary }}>⚜</span>
