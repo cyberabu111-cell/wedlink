@@ -121,6 +121,26 @@ export const TEMPLATES: TemplateDefinition[] = [
       ssr: true,
     }),
   },
+  {
+    id: "royal-mughal-crimson",
+    name: "Royal Mughal Crimson (Zari Gold)",
+    category: "Luxury",
+    thumbnailUrl: "/thumbs/royal-mughal.webp",
+    component: dynamic(() => import("./templates/RoyalMughalCrimson"), {
+      loading: () => TemplateLoadingFallback(),
+      ssr: true,
+    }),
+  },
+  {
+    id: "saffron-marigold-fiesta",
+    name: "Saffron & Marigold Fiesta (Genda Phool)",
+    category: "Traditional",
+    thumbnailUrl: "/thumbs/saffron-marigold.webp",
+    component: dynamic(() => import("./templates/SaffronMarigoldFiesta"), {
+      loading: () => TemplateLoadingFallback(),
+      ssr: true,
+    }),
+  },
 ];
 
 export const TEMPLATE_REGISTRY: Record<string, TemplateDefinition> = TEMPLATES.reduce(
