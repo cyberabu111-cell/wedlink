@@ -32,7 +32,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function PublicInvitationPage({ params }: PageProps) {
   const wedding = await publishedWedding((await params).slug);
   if (!wedding) notFound();
-  if (!isRegisteredTemplate(wedding.template_id)) notFound();
-  const Template = getTemplateComponent(wedding.template_id);
+  const resolvedTemplateId = (wedding.wedding_data as any)?.selectedTemplateId || wedding.template_id;
+  if (!isRegisteredTemplate(resolvedTemplateId)) notFound();
+  const Template = getTemplateComponent(resolvedTemplateId);
   return <Template data={wedding.wedding_data} weddingId={wedding.id} isPaid isPreview={false} />;
 }

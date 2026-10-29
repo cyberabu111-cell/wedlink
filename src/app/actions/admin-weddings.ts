@@ -67,7 +67,7 @@ export async function getAdminWeddings(): Promise<AdminWeddingsOverview> {
       userId: w.user_id,
       userEmail: userMap[w.user_id] || "User " + w.user_id.slice(0, 8),
       slug: w.slug,
-      templateId: w.template_id,
+      templateId: w.wedding_data?.selectedTemplateId || w.template_id,
       planTier: w.plan_tier || "basic",
       isPaid: Boolean(w.is_paid),
       publishedByAdmin: Boolean(w.published_by_admin),

@@ -97,17 +97,42 @@ export default async function StudioPage({ params, searchParams }: PageProps) {
   if (weddingId && weddingId !== 'new') {
     if (!z.uuid().safeParse(weddingId).success) notFound();
     if (!user) redirect(`/login?next=/studio/${weddingId}`);
-    const { data: wedding } = await supabase
-      .from('weddings')
-      .select('*')
-      .eq('id', weddingId)
-      .eq('user_id', user.id)
-      .maybeSingle();
+
+    let isAdmin =
+      user.app_metadata?.role === 'admin' ||
+      user.user_metadata?.role === 'admin';
+
+    let adminClient: any = null;
+    try {
+      const { createAdminClient } = await import('@/lib/supabase/server');
+      adminClient = await createAdminClient();
+      if (!isAdmin) {
+        const { data: profile } = await adminClient
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .maybeSingle();
+        if (profile?.role === 'admin') isAdmin = true;
+      }
+    } catch {
+      // fallback
+    }
+
+    const db = isAdmin && adminClient ? adminClient : supabase;
+
+    let weddingQuery = db.from('weddings').select('*').eq('id', weddingId);
+    if (!isAdmin) {
+      weddingQuery = weddingQuery.eq('user_id', user.id);
+    }
+    const { data: wedding } = await weddingQuery.maybeSingle();
 
     if (!wedding) notFound();
     if (wedding) {
       initialData = (wedding.wedding_data as WeddingData) || createEmptyWeddingData();
-      initialTemplateId = wedding.template_id || 'royal-rajwada';
+      initialTemplateId =
+        (wedding.wedding_data as any)?.selectedTemplateId ||
+        wedding.template_id ||
+        'royal-rajwada';
       initialSlug = wedding.slug || '';
       isPaid = wedding.is_paid || false;
     }
