@@ -10,6 +10,8 @@ import VenueLocationPicker from '@/components/editor/VenueLocationPicker';
 import { updateVenueText } from '@/utils/maps';
 import { getEventTimeRange } from '@/utils/calendar';
 import PublishPayButton from '@/components/editor/PublishPayButton';
+import ImageUploadDropzone from '@/components/editor/ImageUploadDropzone';
+import MultiImageGalleryDropzone from '@/components/editor/MultiImageGalleryDropzone';
 
 interface StudioEditorClientProps {
   initialData: WeddingData;
@@ -606,16 +608,16 @@ export default function StudioEditorClient({
                   </div>
                 </div>
 
-                <div>
-                  <label htmlFor="editor-field-5" className="text-xs font-medium text-slate-600">Cover Portrait Photo URL</label>
-                    <input id="editor-field-5"
-                    type="url"
+                <div className="pt-1">
+                  <ImageUploadDropzone
+                    id="editor-field-5"
                     value={formData.couple.coverPhotoUrl}
-                    onChange={(e) => updateCoupleField('coverPhotoUrl', e.target.value)}
-                    placeholder="https://images.unsplash.com/..."
-                    className="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white"
+                    onChange={(url) => updateCoupleField('coverPhotoUrl', url)}
+                    label="Cover Portrait Photo"
+                    recommendedText="Drag & drop your portrait photo here, or click to browse (JPG, PNG, WebP up to 10MB)."
+                    aspectRatio="portrait"
+                    allowUrlInput={true}
                   />
-                  <p className="text-[11px] text-slate-400 mt-1">Recommended portrait photo (HTTPS image link).</p>
                 </div>
 
                 <div className="pt-2 border-t border-slate-200">
@@ -920,21 +922,45 @@ export default function StudioEditorClient({
               )}
               <div className="flex items-center justify-between">
                 <h3 className="font-semibold text-sm text-slate-800">Photo Gallery</h3>
+                <span className="text-xs text-slate-500 font-medium">
+                  {formData.gallery.length} {formData.gallery.length === 1 ? 'photo' : 'photos'} added
+                </span>
               </div>
 
-              <form className="gallery-add" onSubmit={(event) => { event.preventDefault(); addGalleryImage(); }}>
-                <label htmlFor="gallery-url">Image URL</label>
-                <div><input id="gallery-url" type="url" required value={galleryUrl} onChange={(event) => setGalleryUrl(event.target.value)} placeholder="https://…" /><button type="submit">Add photo +</button></div>
-                {galleryError && <p role="alert">{galleryError}</p>}
-              </form>
+              <MultiImageGalleryDropzone
+                images={formData.gallery}
+                onAddImages={(newUrls) => {
+                  setFormData((prev) => ({
+                    ...prev,
+                    gallery: [...prev.gallery, ...newUrls],
+                  }));
+                }}
+                onRemoveImage={removeGalleryImage}
+              />
+
+              <div className="pt-1">
+                <details className="text-xs text-slate-600 group">
+                  <summary className="cursor-pointer font-medium text-slate-700 hover:text-slate-900 list-none flex items-center gap-1.5 py-1">
+                    <span>+ Or paste photo link directly</span>
+                  </summary>
+                  <div className="pt-2">
+                    <form className="gallery-add" onSubmit={(event) => { event.preventDefault(); addGalleryImage(); }}>
+                      <label htmlFor="gallery-url" className="sr-only">Image URL</label>
+                      <div><input id="gallery-url" type="url" required value={galleryUrl} onChange={(event) => setGalleryUrl(event.target.value)} placeholder="https://…" /><button type="submit">Add photo +</button></div>
+                      {galleryError && <p role="alert">{galleryError}</p>}
+                    </form>
+                  </div>
+                </details>
+              </div>
+
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {formData.gallery.map((imgUrl, idx) => (
-                  <div key={idx} className="relative group aspect-square rounded-xl overflow-hidden bg-slate-100 border border-slate-200">
+                  <div key={idx} className="relative group aspect-square rounded-xl overflow-hidden bg-slate-100 border border-slate-200 shadow-sm">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={imgUrl} alt={`Photo ${idx + 1}`} className="w-full h-full object-cover" />
+                    <img src={imgUrl} alt={`Photo ${idx + 1}`} className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-200" />
                     <button
                       onClick={() => removeGalleryImage(idx)}
-                      className="absolute top-2 right-2 p-1.5 rounded-full bg-red-600 text-white text-xs shadow"
+                      className="absolute top-2 right-2 p-1.5 rounded-full bg-red-600 hover:bg-red-700 text-white text-xs shadow transition-transform active:scale-90"
                       title={`Remove photo ${idx + 1}`} aria-label={`Remove photo ${idx + 1}`}>✕</button>
                   </div>
                 ))}
@@ -942,7 +968,7 @@ export default function StudioEditorClient({
 
               {formData.gallery.length === 0 && (
                 <div className="p-8 text-center bg-slate-50 rounded-xl border border-dashed border-slate-300 text-xs text-slate-500">
-                  Add your first photo using the image URL above.
+                  No photos in your gallery yet. Drag and drop photos above or paste an image URL.
                 </div>
               )}
             </div>
