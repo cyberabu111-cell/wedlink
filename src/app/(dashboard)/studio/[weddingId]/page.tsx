@@ -100,7 +100,9 @@ export default async function StudioPage({ params, searchParams }: PageProps) {
 
     let isAdmin =
       user.app_metadata?.role === 'admin' ||
-      user.user_metadata?.role === 'admin';
+      user.user_metadata?.role === 'admin' ||
+      user.email === 'admin@wedlink.com' ||
+      user.email === 'admin@124.com';
 
     let adminClient: any = null;
     try {

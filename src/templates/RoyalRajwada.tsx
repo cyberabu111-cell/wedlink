@@ -25,6 +25,7 @@ function formatDate(dateStr?: string) {
 
 export default function RoyalRajwada({ data, weddingId = "wedding", isPreview }: WeddingTemplateProps) {
   const { couple, story, events, gallery, theme, rsvpConfig, sections } = data;
+  const showCoverPhoto = sections?.showCoverPhoto !== false;
   const showStory = sections?.showStory !== false;
   const showGallery = sections?.showGallery !== false;
   const showEvents = sections?.showEvents !== false;
@@ -98,7 +99,7 @@ export default function RoyalRajwada({ data, weddingId = "wedding", isPreview }:
           )}
 
           {/* Cover Photo */}
-          {couple.coverPhotoUrl ? (
+          {showCoverPhoto && (couple.coverPhotoUrl ? (
             <div className="mt-10 mx-auto max-w-lg p-2 rounded-2xl border-2 shadow-xl bg-white hover-lift transition-all duration-500" style={{ borderColor: secondary }}>
               <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-[#f0eae1] group">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -109,12 +110,12 @@ export default function RoyalRajwada({ data, weddingId = "wedding", isPreview }:
                 />
               </div>
             </div>
-          ) : (
+          ) : isPreview ? (
             <div className="mt-10 mx-auto max-w-lg p-12 rounded-2xl border-2 border-dashed bg-white/40 flex flex-col items-center justify-center text-center text-[#9b8577] hover-lift transition-all" style={{ borderColor: secondary }}>
               <span className="text-3xl mb-2 animate-pulse-glow" style={{ color: secondary }}>⚜</span>
               <p className="text-xs tracking-wider uppercase">Royal Portrait Placeholder</p>
             </div>
-          )}
+          ) : null)}
 
           {/* Bios */}
           {(couple.brideBio || couple.groomBio) && (

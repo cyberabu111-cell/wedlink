@@ -22,6 +22,8 @@ export interface WeddingData {
     hashtag?: string;         // e.g., "#RahulKiPriya"
     weddingDate: string;      // Primary countdown date
     coverPhotoUrl: string;
+    bridePhoto?: string;
+    groomPhoto?: string;
   };
   story: {
     title: string;
@@ -43,6 +45,8 @@ export interface WeddingData {
     whatsappNumber?: string;  // Optional: also send RSVP via WhatsApp
   };
   sections?: {
+    showCoverPhoto?: boolean;
+    showCouplePhotos?: boolean;
     showCountdown?: boolean;
     showStory?: boolean;
     showGallery?: boolean;

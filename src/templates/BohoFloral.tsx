@@ -24,6 +24,7 @@ function formatDate(dateStr?: string) {
 
 export default function BohoFloral({ data, weddingId = "wedding", isPreview }: WeddingTemplateProps) {
   const { couple, story, events, gallery, theme, rsvpConfig, sections } = data;
+  const showCoverPhoto = sections?.showCoverPhoto !== false;
   const showStory = sections?.showStory !== false;
   const showGallery = sections?.showGallery !== false;
   const showEvents = sections?.showEvents !== false;
@@ -70,7 +71,7 @@ export default function BohoFloral({ data, weddingId = "wedding", isPreview }: W
         )}
 
         {/* Cover Photo */}
-        {couple.coverPhotoUrl ? (
+        {showCoverPhoto && (couple.coverPhotoUrl ? (
           <div className="mt-10 mx-auto max-w-md p-3 bg-white rounded-3xl shadow-lg border border-[#f0ded5] hover-lift transition-all duration-700">
             <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-[#faeee8] group">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -81,11 +82,11 @@ export default function BohoFloral({ data, weddingId = "wedding", isPreview }: W
               />
             </div>
           </div>
-        ) : (
+        ) : isPreview ? (
           <div className="mt-10 mx-auto max-w-md aspect-[4/5] rounded-3xl border-2 border-dashed border-[#e3c7ba] bg-white/60 flex flex-col items-center justify-center text-xs text-[#a37e72] tracking-wider uppercase font-sans hover-lift">
             Couple Photo
           </div>
-        )}
+        ) : null)}
 
         {/* Bios */}
         {(couple.brideBio || couple.groomBio) && (

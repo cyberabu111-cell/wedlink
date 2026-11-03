@@ -92,6 +92,8 @@ export default function MalabarRoyalGold({
   /* ── 0. Section Visibility Flags ── */
   const rawData = data as any;
   const sections = (rawData.sections as any) || {};
+  const showCoverPhoto = sections.showCoverPhoto !== false;
+  const showCouplePhotos = sections.showCouplePhotos !== false;
   const showCountdown = sections.showCountdown !== false;
   const showStory = sections.showStory !== false;
   const showGallery = sections.showGallery !== false;
@@ -108,11 +110,9 @@ export default function MalabarRoyalGold({
     groomBio: rawData.couple?.groomBio || "",
     bridePhoto:
       rawData.couple?.bridePhoto ||
-      rawData.couple?.coverPhotoUrl ||
       "https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=800&q=80",
     groomPhoto:
       rawData.couple?.groomPhoto ||
-      rawData.couple?.coverPhotoUrl ||
       "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80",
     hashtag: rawData.couple?.hashtag || "#RoyalNikah",
     weddingDate: rawData.couple?.weddingDate || "2026-12-14",
@@ -476,7 +476,7 @@ export default function MalabarRoyalGold({
           </motion.div>
 
           {/* Grand Arch Hero Portrait */}
-          {hero.coverPhoto && (
+          {showCoverPhoto && hero.coverPhoto && (
             <motion.div
               initial={{ opacity: 0, y: 25 }}
               animate={{ opacity: 1, y: 0 }}
@@ -546,7 +546,7 @@ export default function MalabarRoyalGold({
           SECTION 3: THE COUPLE & LOVE STORY
           Renders bride & groom profiles and milestone cards
           ───────────────────────────────────────────────────────────── */}
-      {(couple.brideBio || couple.groomBio || (showStory && storyItems.length > 0)) && (
+      {(showCouplePhotos || couple.brideBio || couple.groomBio || (showStory && storyItems.length > 0)) && (
         <section className="py-20 px-4 sm:px-6 max-w-5xl mx-auto border-b border-[#D4AF37]/20">
           <div className="text-center space-y-3 mb-16">
             <span className="text-xs font-sans uppercase tracking-[0.25em] text-[#B8860B] font-semibold">
@@ -562,15 +562,17 @@ export default function MalabarRoyalGold({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12 mb-16">
             {/* Bride Card */}
             <div className="flex flex-col items-center text-center p-8 rounded-2xl bg-white border border-[#D4AF37]/30 shadow-md">
-              <div className="w-36 h-36 rounded-full overflow-hidden border-2 border-[#D4AF37] shadow-inner mb-6">
-                <img
-                  src={couple.bridePhoto}
-                  alt={couple.brideName}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </div>
-              <h3 className="text-2xl font-serif text-[#1A1A1A]">{couple.brideName}</h3>
+              {showCouplePhotos && couple.bridePhoto && (
+                <div className="w-36 h-36 rounded-full overflow-hidden border-2 border-[#D4AF37] shadow-inner mb-6 bg-stone-100">
+                  <img
+                    src={couple.bridePhoto}
+                    alt={couple.brideName}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
+              )}
+              <h3 className="text-xl sm:text-2xl font-serif text-[#1A1A1A] break-normal leading-snug">{couple.brideName}</h3>
               <p className="text-xs font-sans uppercase tracking-widest text-[#B8860B] mt-1 mb-4 font-semibold">
                 The Bride
               </p>
@@ -583,15 +585,17 @@ export default function MalabarRoyalGold({
 
             {/* Groom Card */}
             <div className="flex flex-col items-center text-center p-8 rounded-2xl bg-white border border-[#D4AF37]/30 shadow-md">
-              <div className="w-36 h-36 rounded-full overflow-hidden border-2 border-[#D4AF37] shadow-inner mb-6">
-                <img
-                  src={couple.groomPhoto}
-                  alt={couple.groomName}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </div>
-              <h3 className="text-2xl font-serif text-[#1A1A1A]">{couple.groomName}</h3>
+              {showCouplePhotos && couple.groomPhoto && (
+                <div className="w-36 h-36 rounded-full overflow-hidden border-2 border-[#D4AF37] shadow-inner mb-6 bg-stone-100">
+                  <img
+                    src={couple.groomPhoto}
+                    alt={couple.groomName}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
+              )}
+              <h3 className="text-xl sm:text-2xl font-serif text-[#1A1A1A] break-normal leading-snug">{couple.groomName}</h3>
               <p className="text-xs font-sans uppercase tracking-widest text-[#B8860B] mt-1 mb-4 font-semibold">
                 The Groom
               </p>

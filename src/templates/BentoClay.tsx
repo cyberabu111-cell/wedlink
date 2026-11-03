@@ -210,6 +210,7 @@ function ShareIcon() {
 
 export default function BentoClay({ data, weddingId = "wedding", isPreview }: WeddingTemplateProps) {
   const { couple, story, events, gallery, rsvpConfig, theme, sections } = data;
+  const showCoverPhoto = sections?.showCoverPhoto !== false;
   const showCountdown = sections?.showCountdown !== false;
   const showStory = sections?.showStory !== false;
   const showGallery = sections?.showGallery !== false;
@@ -378,7 +379,7 @@ View our wedding invitation: ${shareUrl}`
       <section className="px-3 pt-2 animate-fade-in-up">
         <div className="relative w-full max-w-lg mx-auto aspect-[4/5] rounded-3xl overflow-hidden shadow-[0_20px_60px_rgba(138,75,54,0.18)] hover-lift transition-all duration-700">
           {/* Cover photo */}
-          {couple.coverPhotoUrl ? (
+          {showCoverPhoto && couple.coverPhotoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={couple.coverPhotoUrl}
@@ -386,8 +387,8 @@ View our wedding invitation: ${shareUrl}`
               className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 hover:scale-105"
             />
           ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-[#e7bea7] via-[#ffdbd0] to-[#d4e4ce] flex items-center justify-center">
-              <span className="text-6xl opacity-40 animate-pulse-glow">💍</span>
+            <div className="absolute inset-0 bg-gradient-to-br from-[#8a4b36] via-[#a25d45] to-[#713b28] flex items-center justify-center">
+              <span className="text-6xl opacity-20">💍</span>
             </div>
           )}
 

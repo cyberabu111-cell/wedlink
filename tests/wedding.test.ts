@@ -29,6 +29,8 @@ test("reject duplicate event IDs and incomplete coordinates", () => {
 test("section visibility flags are valid and optional in weddingDataSchema", () => {
   const draft = createEmptyWeddingData();
   assert.equal(weddingDataSchema.safeParse(draft).success, true);
+  assert.equal(draft.sections?.showCoverPhoto, true);
+  assert.equal(draft.sections?.showCouplePhotos, true);
   assert.equal(draft.sections?.showCountdown, true);
   assert.equal(draft.sections?.showStory, true);
   assert.equal(draft.sections?.showGallery, true);
@@ -39,7 +41,14 @@ test("section visibility flags are valid and optional in weddingDataSchema", () 
   // Custom section visibility
   const custom = {
     ...draft,
+    couple: {
+      ...draft.couple,
+      bridePhoto: "https://example.com/bride.jpg",
+      groomPhoto: "https://example.com/groom.jpg",
+    },
     sections: {
+      showCoverPhoto: false,
+      showCouplePhotos: false,
       showCountdown: false,
       showStory: false,
       showGallery: false,
@@ -48,7 +57,14 @@ test("section visibility flags are valid and optional in weddingDataSchema", () 
       showMusic: false,
     },
   };
-  assert.equal(weddingDataSchema.safeParse(custom).success, true);
+  const parseResult = weddingDataSchema.safeParse(custom);
+  assert.equal(parseResult.success, true);
+  if (parseResult.success) {
+    assert.equal(parseResult.data.couple.bridePhoto, "https://example.com/bride.jpg");
+    assert.equal(parseResult.data.couple.groomPhoto, "https://example.com/groom.jpg");
+    assert.equal(parseResult.data.sections?.showCoverPhoto, false);
+    assert.equal(parseResult.data.sections?.showCouplePhotos, false);
+  }
 
   // Schema allows omitting sections (backward-compatible)
   const { sections, ...withoutSections } = draft;

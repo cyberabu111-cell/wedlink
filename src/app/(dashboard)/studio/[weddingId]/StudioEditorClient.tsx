@@ -608,18 +608,6 @@ export default function StudioEditorClient({
                   </div>
                 </div>
 
-                <div className="pt-1">
-                  <ImageUploadDropzone
-                    id="editor-field-5"
-                    value={formData.couple.coverPhotoUrl}
-                    onChange={(url) => updateCoupleField('coverPhotoUrl', url)}
-                    label="Cover Portrait Photo"
-                    recommendedText="Drag & drop your portrait photo here, or click to browse (JPG, PNG, WebP up to 10MB)."
-                    aspectRatio="portrait"
-                    allowUrlInput={true}
-                  />
-                </div>
-
                 <div className="pt-2 border-t border-slate-200">
                   <SectionToggleCard
                     title="Live Countdown Timer"
@@ -630,27 +618,117 @@ export default function StudioEditorClient({
                 </div>
               </div>
 
+              {/* SECTION: HERO COVER PHOTO */}
               <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-4">
-                <h3 className="font-semibold text-sm text-slate-800">Couple Bios (Optional)</h3>
-                <div>
-                  <label htmlFor="editor-field-6" className="text-xs font-medium text-slate-600">Bride&apos;s Bio</label>
-                    <textarea id="editor-field-6"
-                    rows={3}
-                    value={formData.couple.brideBio || ''}
-                    onChange={(e) => updateCoupleField('brideBio', e.target.value)}
-                    placeholder="A brief note or message from the bride..."
-                    className="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white"
-                  />
+                <div className="flex items-center justify-between">
+                  <h3 className="font-semibold text-sm text-slate-800">Hero Cover Photo</h3>
                 </div>
-                <div>
-                  <label htmlFor="editor-field-7" className="text-xs font-medium text-slate-600">Groom&apos;s Bio</label>
+                <SectionToggleCard
+                  title="Show Hero Cover Photo"
+                  description="Display a prominent couple portrait photo in the invitation hero banner or arch."
+                  badge="Hero Banner"
+                  enabled={formData.sections?.showCoverPhoto !== false}
+                  onChange={(val) => updateSectionVisibility('showCoverPhoto', val)}
+                />
+                {formData.sections?.showCoverPhoto !== false ? (
+                  <div className="pt-1">
+                    <ImageUploadDropzone
+                      id="editor-field-5"
+                      value={formData.couple.coverPhotoUrl}
+                      onChange={(url) => updateCoupleField('coverPhotoUrl', url)}
+                      label="Cover Portrait Photo"
+                      recommendedText="Drag & drop your couple portrait photo here, or click to browse (JPG, PNG, WebP up to 10MB)."
+                      aspectRatio="portrait"
+                      allowUrlInput={true}
+                    />
+                  </div>
+                ) : (
+                  <div className="p-3.5 bg-amber-50 rounded-lg border border-amber-200 text-xs text-amber-800 flex items-center justify-between gap-3">
+                    <span>Cover photo is hidden on your invitation website. The header displays names and date cleanly.</span>
+                    <button
+                      type="button"
+                      onClick={() => updateSectionVisibility('showCoverPhoto', true)}
+                      className="px-2.5 py-1 bg-amber-200 text-amber-900 rounded font-medium hover:bg-amber-300 text-[11px] shrink-0"
+                    >
+                      Turn On
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* SECTION: BRIDE & GROOM PORTRAITS & BIOS */}
+              <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-semibold text-sm text-slate-800">Bride & Groom Portraits</h3>
+                </div>
+                <SectionToggleCard
+                  title="Show Individual Couple Photos"
+                  description="Display separate portrait photos on the Bride and Groom cards."
+                  badge="Couple Cards"
+                  enabled={formData.sections?.showCouplePhotos !== false}
+                  onChange={(val) => updateSectionVisibility('showCouplePhotos', val)}
+                />
+
+                {formData.sections?.showCouplePhotos !== false ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+                    <div>
+                      <ImageUploadDropzone
+                        id="editor-field-bride-photo"
+                        value={formData.couple.bridePhoto || ''}
+                        onChange={(url) => updateCoupleField('bridePhoto', url)}
+                        label="Bride's Portrait Photo"
+                        recommendedText="Drag & drop Bride's photo here, or click to browse (JPG, PNG, WebP)."
+                        aspectRatio="portrait"
+                        allowUrlInput={true}
+                      />
+                    </div>
+                    <div>
+                      <ImageUploadDropzone
+                        id="editor-field-groom-photo"
+                        value={formData.couple.groomPhoto || ''}
+                        onChange={(url) => updateCoupleField('groomPhoto', url)}
+                        label="Groom's Portrait Photo"
+                        recommendedText="Drag & drop Groom's photo here, or click to browse (JPG, PNG, WebP)."
+                        aspectRatio="portrait"
+                        allowUrlInput={true}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-3.5 bg-amber-50 rounded-lg border border-amber-200 text-xs text-amber-800 flex items-center justify-between gap-3">
+                    <span>Individual photos are hidden. The Bride and Groom cards will display their names and bios cleanly without photo arches.</span>
+                    <button
+                      type="button"
+                      onClick={() => updateSectionVisibility('showCouplePhotos', true)}
+                      className="px-2.5 py-1 bg-amber-200 text-amber-900 rounded font-medium hover:bg-amber-300 text-[11px] shrink-0"
+                    >
+                      Turn On
+                    </button>
+                  </div>
+                )}
+
+                <div className="pt-2 border-t border-slate-200 space-y-4">
+                  <h4 className="font-medium text-xs text-slate-700">Couple Bios (Optional)</h4>
+                  <div>
+                    <label htmlFor="editor-field-6" className="text-xs font-medium text-slate-600">Bride&apos;s Bio</label>
+                    <textarea id="editor-field-6"
+                      rows={3}
+                      value={formData.couple.brideBio || ''}
+                      onChange={(e) => updateCoupleField('brideBio', e.target.value)}
+                      placeholder="A brief note or message from the bride..."
+                      className="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="editor-field-7" className="text-xs font-medium text-slate-600">Groom&apos;s Bio</label>
                     <textarea id="editor-field-7"
-                    rows={3}
-                    value={formData.couple.groomBio || ''}
-                    onChange={(e) => updateCoupleField('groomBio', e.target.value)}
-                    placeholder="A brief note or message from the groom..."
-                    className="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white"
-                  />
+                      rows={3}
+                      value={formData.couple.groomBio || ''}
+                      onChange={(e) => updateCoupleField('groomBio', e.target.value)}
+                      placeholder="A brief note or message from the groom..."
+                      className="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white"
+                    />
+                  </div>
                 </div>
               </div>
             </div>

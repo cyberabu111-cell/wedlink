@@ -113,6 +113,8 @@ export default function RoyalMughalCrimson({
 }: WeddingTemplateProps) {
   const rawData = data as any;
   const sections = (rawData.sections as any) || {};
+  const showCoverPhoto = sections.showCoverPhoto !== false;
+  const showCouplePhotos = sections.showCouplePhotos !== false;
   const showCountdown = sections.showCountdown !== false;
   const showStory = sections.showStory !== false;
   const showGallery = sections.showGallery !== false;
@@ -127,11 +129,9 @@ export default function RoyalMughalCrimson({
     groomBio: rawData.couple?.groomBio || "",
     bridePhoto:
       rawData.couple?.bridePhoto ||
-      rawData.couple?.coverPhotoUrl ||
       "https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=800&q=80",
     groomPhoto:
       rawData.couple?.groomPhoto ||
-      rawData.couple?.coverPhotoUrl ||
       "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80",
     hashtag: rawData.couple?.hashtag || "#RoyalNikah",
     weddingDate: rawData.couple?.weddingDate || "2026-12-14",
@@ -529,61 +529,63 @@ export default function RoyalMughalCrimson({
             </div>
 
             {/* Archival Portrait with Royal Mughal Zari & Marigold Border */}
-            <div className="relative w-full max-w-sm aspect-[4/5] overflow-hidden bg-gradient-to-b from-[#FFFDF7] to-[#FCEEC7] rounded-2xl p-2.5 mb-6 royal-shadow border-2 border-[#D4AF37]">
-              {/* Ornate Gold Filigree Corners */}
-              <div className="absolute inset-0 pointer-events-none z-10 p-2.5 flex flex-col justify-between">
-                <div className="flex justify-between items-start">
-                  <svg className="w-10 h-10 text-[#D4AF37] drop-shadow-md" fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="1.2" viewBox="0 0 36 36">
-                    <path d="M2 2 L16 2 M2 2 L2 16" />
-                    <circle cx="10" cy="10" r="4" strokeWidth="1" />
-                    <path d="M2 2 Q 14 6 14 14 Q 6 14 2 2" fill="currentColor" fillOpacity="0.15" />
-                  </svg>
-                  <svg className="w-10 h-10 text-[#D4AF37] drop-shadow-md" fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="1.2" viewBox="0 0 36 36">
-                    <path d="M34 2 L20 2 M34 2 L34 16" />
-                    <circle cx="26" cy="10" r="4" strokeWidth="1" />
-                    <path d="M34 2 Q 22 6 22 14 Q 30 14 34 2" fill="currentColor" fillOpacity="0.15" />
-                  </svg>
-                </div>
-                <div className="flex justify-between items-end">
-                  <svg className="w-10 h-10 text-[#D4AF37] drop-shadow-md" fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="1.2" viewBox="0 0 36 36">
-                    <path d="M2 34 L16 34 M2 34 L2 20" />
-                    <circle cx="10" cy="26" r="4" strokeWidth="1" />
-                    <path d="M2 34 Q 14 30 14 22 Q 6 22 2 34" fill="currentColor" fillOpacity="0.15" />
-                  </svg>
-                  <svg className="w-10 h-10 text-[#D4AF37] drop-shadow-md" fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="1.2" viewBox="0 0 36 36">
-                    <path d="M34 34 L20 34 M34 34 L34 20" />
-                    <circle cx="26" cy="26" r="4" strokeWidth="1" />
-                    <path d="M34 34 Q 22 30 22 22 Q 30 22 34 34" fill="currentColor" fillOpacity="0.15" />
-                  </svg>
-                </div>
-              </div>
-
-              {/* Photo */}
-              <div className="relative w-full h-full rounded-xl overflow-hidden border border-[#D4AF37]/50 shadow-inner">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={couple.coverPhotoUrl || couple.bridePhoto || couple.groomPhoto}
-                  alt={`${couple.groomName} & ${couple.brideName}`}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#29040A]/85 via-transparent to-transparent pointer-events-none" />
-
-                {/* Bottom Caption Bar */}
-                <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between text-white text-left z-20">
-                  <div>
-                    <span className="font-sans text-[10px] uppercase tracking-widest text-[#FDE68A] flex items-center gap-1 font-bold">
-                      <span>⚜️</span> Ceremonial Portrait
-                    </span>
-                    <span className="font-serif text-[20px] italic leading-tight text-white font-medium drop-shadow">
-                      {couple.groomName} &amp; {couple.brideName}
-                    </span>
+            {showCoverPhoto && (hero.coverPhoto || couple.coverPhotoUrl) && (
+              <div className="relative w-full max-w-sm aspect-[4/5] overflow-hidden bg-gradient-to-b from-[#FFFDF7] to-[#FCEEC7] rounded-2xl p-2.5 mb-6 royal-shadow border-2 border-[#D4AF37]">
+                {/* Ornate Gold Filigree Corners */}
+                <div className="absolute inset-0 pointer-events-none z-10 p-2.5 flex flex-col justify-between">
+                  <div className="flex justify-between items-start">
+                    <svg className="w-10 h-10 text-[#D4AF37] drop-shadow-md" fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="1.2" viewBox="0 0 36 36">
+                      <path d="M2 2 L16 2 M2 2 L2 16" />
+                      <circle cx="10" cy="10" r="4" strokeWidth="1" />
+                      <path d="M2 2 Q 14 6 14 14 Q 6 14 2 2" fill="currentColor" fillOpacity="0.15" />
+                    </svg>
+                    <svg className="w-10 h-10 text-[#D4AF37] drop-shadow-md" fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="1.2" viewBox="0 0 36 36">
+                      <path d="M34 2 L20 2 M34 2 L34 16" />
+                      <circle cx="26" cy="10" r="4" strokeWidth="1" />
+                      <path d="M34 2 Q 22 6 22 14 Q 30 14 34 2" fill="currentColor" fillOpacity="0.15" />
+                    </svg>
                   </div>
-                  <div className="w-8 h-8 rounded-full bg-[#8B0E23]/90 border border-[#D4AF37] flex items-center justify-center text-[10px] text-[#FFF3B0] font-sans font-bold shadow-md">
-                    {getInitials(couple.groomName, couple.brideName)}
+                  <div className="flex justify-between items-end">
+                    <svg className="w-10 h-10 text-[#D4AF37] drop-shadow-md" fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="1.2" viewBox="0 0 36 36">
+                      <path d="M2 34 L16 34 M2 34 L2 20" />
+                      <circle cx="10" cy="26" r="4" strokeWidth="1" />
+                      <path d="M2 34 Q 14 30 14 22 Q 6 22 2 34" fill="currentColor" fillOpacity="0.15" />
+                    </svg>
+                    <svg className="w-10 h-10 text-[#D4AF37] drop-shadow-md" fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="1.2" viewBox="0 0 36 36">
+                      <path d="M34 34 L20 34 M34 34 L34 20" />
+                      <circle cx="26" cy="26" r="4" strokeWidth="1" />
+                      <path d="M34 34 Q 22 30 22 22 Q 30 22 34 34" fill="currentColor" fillOpacity="0.15" />
+                    </svg>
                   </div>
                 </div>
+
+                {/* Photo */}
+                <div className="relative w-full h-full rounded-xl overflow-hidden border border-[#D4AF37]/50 shadow-inner">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={couple.coverPhotoUrl || hero.coverPhoto}
+                    alt={`${couple.groomName} & ${couple.brideName}`}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#29040A]/85 via-transparent to-transparent pointer-events-none" />
+
+                  {/* Bottom Caption Bar */}
+                  <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between text-white text-left z-20">
+                    <div>
+                      <span className="font-sans text-[10px] uppercase tracking-widest text-[#FDE68A] flex items-center gap-1 font-bold">
+                        <span>⚜️</span> Ceremonial Portrait
+                      </span>
+                      <span className="font-serif text-[20px] italic leading-tight text-white font-medium drop-shadow">
+                        {couple.groomName} &amp; {couple.brideName}
+                      </span>
+                    </div>
+                    <div className="w-8 h-8 rounded-full bg-[#8B0E23]/90 border border-[#D4AF37] flex items-center justify-center text-[10px] text-[#FFF3B0] font-sans font-bold shadow-md">
+                      {getInitials(couple.groomName, couple.brideName)}
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Couple Names & Tagline */}
             <div className="max-w-md mx-auto mb-6">
@@ -674,6 +676,11 @@ export default function RoyalMughalCrimson({
               <div className="flex flex-col gap-4">
                 {/* Groom Card */}
                 <div className="bg-[#FFFDF7] p-5 border-2 border-[#D4AF37] rounded-xl shadow-md relative overflow-hidden">
+                  {showCouplePhotos && couple.groomPhoto && (
+                    <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-[#D4AF37] shadow-inner mb-3 mx-auto bg-stone-100">
+                      <img src={couple.groomPhoto} alt={couple.groomName} className="w-full h-full object-cover" loading="lazy" />
+                    </div>
+                  )}
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-sans text-[10px] uppercase tracking-widest text-[#8B0E23] font-bold">
                       Groom &amp; Household
@@ -690,6 +697,11 @@ export default function RoyalMughalCrimson({
 
                 {/* Bride Card */}
                 <div className="bg-[#FFFDF7] p-5 border-2 border-[#D4AF37] rounded-xl shadow-md relative overflow-hidden">
+                  {showCouplePhotos && couple.bridePhoto && (
+                    <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-[#D4AF37] shadow-inner mb-3 mx-auto bg-stone-100">
+                      <img src={couple.bridePhoto} alt={couple.brideName} className="w-full h-full object-cover" loading="lazy" />
+                    </div>
+                  )}
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-sans text-[10px] uppercase tracking-widest text-[#8B0E23] font-bold">
                       Bride &amp; Household

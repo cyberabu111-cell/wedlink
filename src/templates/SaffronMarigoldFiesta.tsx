@@ -106,6 +106,8 @@ export default function SaffronMarigoldFiesta({
 }: WeddingTemplateProps) {
   const rawData = data as any;
   const sections = (rawData.sections as any) || {};
+  const showCoverPhoto = sections.showCoverPhoto !== false;
+  const showCouplePhotos = sections.showCouplePhotos !== false;
   const showCountdown = sections.showCountdown !== false;
   const showStory = sections.showStory !== false;
   const showGallery = sections.showGallery !== false;
@@ -120,11 +122,9 @@ export default function SaffronMarigoldFiesta({
     groomBio: rawData.couple?.groomBio || "",
     bridePhoto:
       rawData.couple?.bridePhoto ||
-      rawData.couple?.coverPhotoUrl ||
       "https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=800&q=80",
     groomPhoto:
       rawData.couple?.groomPhoto ||
-      rawData.couple?.coverPhotoUrl ||
       "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80",
     hashtag: rawData.couple?.hashtag || "#SaffronFiesta",
     weddingDate: rawData.couple?.weddingDate || "2026-12-14",
@@ -491,40 +491,42 @@ export default function SaffronMarigoldFiesta({
             </div>
 
             {/* Decorated Portrait with Marigold String Border & Lantern Accents */}
-            <div className="relative w-full max-w-sm aspect-[4/5] bg-gradient-to-b from-amber-200 via-orange-200 to-amber-300 rounded-2xl p-2.5 mb-6 marigold-glow border border-amber-400">
-              {/* Top Tag Badge */}
-              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#C2410C] via-[#EA580C] to-[#C2410C] text-white px-4 py-1 rounded-full border border-amber-300 text-[10px] font-mono uppercase tracking-widest shadow-md flex items-center gap-1.5 z-20">
-                <span>🌼</span>
-                <span>Sacred Matrimony</span>
-                <span>🌼</span>
-              </div>
+            {showCoverPhoto && (hero.coverPhoto || couple.coverPhotoUrl) && (
+              <div className="relative w-full max-w-sm aspect-[4/5] bg-gradient-to-b from-amber-200 via-orange-200 to-amber-300 rounded-2xl p-2.5 mb-6 marigold-glow border border-amber-400">
+                {/* Top Tag Badge */}
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#C2410C] via-[#EA580C] to-[#C2410C] text-white px-4 py-1 rounded-full border border-amber-300 text-[10px] font-mono uppercase tracking-widest shadow-md flex items-center gap-1.5 z-20">
+                  <span>🌼</span>
+                  <span>Sacred Matrimony</span>
+                  <span>🌼</span>
+                </div>
 
-              {/* Photo Frame */}
-              <div className="relative w-full h-full rounded-xl overflow-hidden border-2 border-amber-400/80 shadow-inner">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={couple.coverPhotoUrl || couple.bridePhoto || couple.groomPhoto}
-                  alt={`${couple.groomName} & ${couple.brideName}`}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#7C2D12]/85 via-transparent to-transparent pointer-events-none" />
+                {/* Photo Frame */}
+                <div className="relative w-full h-full rounded-xl overflow-hidden border-2 border-amber-400/80 shadow-inner">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={couple.coverPhotoUrl || hero.coverPhoto}
+                    alt={`${couple.groomName} & ${couple.brideName}`}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#7C2D12]/85 via-transparent to-transparent pointer-events-none" />
 
-                {/* Bottom Caption */}
-                <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between text-white text-left z-20">
-                  <div>
-                    <span className="font-mono text-[9px] uppercase tracking-widest text-amber-200 flex items-center gap-1 font-bold">
-                      <span>✨</span> Festive Portrait
-                    </span>
-                    <span className="font-serif text-[20px] italic leading-tight text-white font-medium drop-shadow">
-                      {couple.groomName} &amp; {couple.brideName}
-                    </span>
-                  </div>
-                  <div className="w-8 h-8 rounded-full bg-[#C2410C]/90 border border-amber-300 flex items-center justify-center text-[10px] text-amber-200 font-mono font-bold shadow-md">
-                    {getInitials(couple.groomName, couple.brideName)}
+                  {/* Bottom Caption */}
+                  <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between text-white text-left z-20">
+                    <div>
+                      <span className="font-mono text-[9px] uppercase tracking-widest text-amber-200 flex items-center gap-1 font-bold">
+                        <span>✨</span> Festive Portrait
+                      </span>
+                      <span className="font-serif text-[20px] italic leading-tight text-white font-medium drop-shadow">
+                        {couple.groomName} &amp; {couple.brideName}
+                      </span>
+                    </div>
+                    <div className="w-8 h-8 rounded-full bg-[#C2410C]/90 border border-amber-300 flex items-center justify-center text-[10px] text-amber-200 font-mono font-bold shadow-md">
+                      {getInitials(couple.groomName, couple.brideName)}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Couple Names & Tagline */}
             <div className="max-w-md mx-auto mb-6">
@@ -615,6 +617,11 @@ export default function SaffronMarigoldFiesta({
               <div className="flex flex-col gap-4">
                 {/* Groom's Card */}
                 <div className="bg-gradient-to-br from-white to-amber-50/90 p-5 rounded-2xl border-2 border-amber-300 shadow-sm relative overflow-hidden">
+                  {showCouplePhotos && couple.groomPhoto && (
+                    <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-amber-400 shadow-inner mb-3 mx-auto bg-stone-100">
+                      <img src={couple.groomPhoto} alt={couple.groomName} className="w-full h-full object-cover" loading="lazy" />
+                    </div>
+                  )}
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-mono text-[10px] uppercase tracking-widest text-[#C2410C] font-bold">
                       Groom &amp; Household
@@ -631,6 +638,11 @@ export default function SaffronMarigoldFiesta({
 
                 {/* Bride's Card */}
                 <div className="bg-gradient-to-br from-white to-amber-50/90 p-5 rounded-2xl border-2 border-amber-300 shadow-sm relative overflow-hidden">
+                  {showCouplePhotos && couple.bridePhoto && (
+                    <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-amber-400 shadow-inner mb-3 mx-auto bg-stone-100">
+                      <img src={couple.bridePhoto} alt={couple.brideName} className="w-full h-full object-cover" loading="lazy" />
+                    </div>
+                  )}
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-mono text-[10px] uppercase tracking-widest text-[#C2410C] font-bold">
                       Bride &amp; Household

@@ -24,6 +24,7 @@ function formatDate(dateStr?: string) {
 
 export default function MinimalSage({ data, weddingId = "wedding", isPreview }: WeddingTemplateProps) {
   const { couple, story, events, gallery, theme, rsvpConfig, sections } = data;
+  const showCoverPhoto = sections?.showCoverPhoto !== false;
   const showStory = sections?.showStory !== false;
   const showGallery = sections?.showGallery !== false;
   const showEvents = sections?.showEvents !== false;
@@ -66,7 +67,7 @@ export default function MinimalSage({ data, weddingId = "wedding", isPreview }: 
         )}
 
         {/* Minimalist Cover Photo */}
-        {couple.coverPhotoUrl ? (
+        {showCoverPhoto && (couple.coverPhotoUrl ? (
           <div className="mt-12 mx-auto max-w-md aspect-[3/4] rounded-2xl overflow-hidden bg-[#e8ece7] shadow-sm hover-lift transition-all duration-700">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -75,11 +76,11 @@ export default function MinimalSage({ data, weddingId = "wedding", isPreview }: 
               className="w-full h-full object-cover grayscale-[15%] hover:grayscale-0 transition-all duration-700 hover:scale-105"
             />
           </div>
-        ) : (
+        ) : isPreview ? (
           <div className="mt-12 mx-auto max-w-md aspect-[3/4] rounded-2xl border border-dashed border-[#ccd4cb] bg-white/50 flex flex-col items-center justify-center text-xs text-[#829285] tracking-widest uppercase hover-lift">
             Photograph
           </div>
-        )}
+        ) : null)}
 
         {/* Bios */}
         {(couple.brideBio || couple.groomBio) && (

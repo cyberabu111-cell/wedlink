@@ -39,6 +39,8 @@ export const weddingDataSchema = z.object({
     hashtag: shortText.optional(),
     weddingDate: draftDate,
     coverPhotoUrl: draftUrl,
+    bridePhoto: draftUrl.optional(),
+    groomPhoto: draftUrl.optional(),
   }).strict(),
   story: z.object({
     title: shortText,
@@ -67,6 +69,8 @@ export const weddingDataSchema = z.object({
     whatsappNumber: z.string().regex(/^(?:\+?[1-9]\d{6,14})?$/).optional(),
   }).strict(),
   sections: z.object({
+    showCoverPhoto: z.boolean().optional(),
+    showCouplePhotos: z.boolean().optional(),
     showCountdown: z.boolean().optional(),
     showStory: z.boolean().optional(),
     showGallery: z.boolean().optional(),

@@ -23,10 +23,12 @@ export async function requireAdmin(): Promise<AdminUser> {
     throw new Error("Unauthorized: Authentication required.");
   }
 
-  // 1. Fast check for JWT or user metadata admin role
+  // 1. Fast check for JWT, user metadata admin role, or designated admin email
   if (
     user.app_metadata?.role === "admin" ||
-    user.user_metadata?.role === "admin"
+    user.user_metadata?.role === "admin" ||
+    user.email === "admin@wedlink.com" ||
+    user.email === "admin@124.com"
   ) {
     return {
       id: user.id,

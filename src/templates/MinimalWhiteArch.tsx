@@ -89,6 +89,8 @@ export default function MinimalWhiteArch({
 
   /* ── 0. Section Visibility Flags ── */
   const sections = (rawData.sections as any) || {};
+  const showCoverPhoto = sections.showCoverPhoto !== false;
+  const showCouplePhotos = sections.showCouplePhotos !== false;
   const showCountdown = sections.showCountdown !== false;
   const showStory = sections.showStory !== false;
   const showGallery = sections.showGallery !== false;
@@ -104,11 +106,9 @@ export default function MinimalWhiteArch({
     groomBio: rawData.couple?.groomBio || "",
     bridePhoto:
       rawData.couple?.bridePhoto ||
-      rawData.couple?.coverPhotoUrl ||
       "https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=800&q=80",
     groomPhoto:
       rawData.couple?.groomPhoto ||
-      rawData.couple?.coverPhotoUrl ||
       "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80",
     hashtag: rawData.couple?.hashtag || "#ForeverUs",
     weddingDate: rawData.couple?.weddingDate || "2026-12-14",
@@ -446,7 +446,7 @@ export default function MinimalWhiteArch({
           </motion.div>
 
           {/* Architectural Arch Frame */}
-          {hero.coverPhoto && (
+          {showCoverPhoto && hero.coverPhoto && (
             <motion.div
               initial={{ opacity: 0, y: 25 }}
               animate={{ opacity: 1, y: 0 }}
@@ -513,7 +513,7 @@ export default function MinimalWhiteArch({
       {/* ─────────────────────────────────────────────────────────────
           SECTION 3: COUPLE & STORY TIMELINE
           ───────────────────────────────────────────────────────────── */}
-      {(couple.brideBio || couple.groomBio || (showStory && storyItems.length > 0)) && (
+      {(showCouplePhotos || couple.brideBio || couple.groomBio || (showStory && storyItems.length > 0)) && (
         <section className="py-24 px-4 sm:px-6 max-w-5xl mx-auto border-b border-[#C5A880]/20">
           <div className="text-center space-y-2 mb-16">
             <span className="text-[11px] font-sans uppercase tracking-[0.3em] text-[#8C7355] font-semibold">
@@ -529,10 +529,12 @@ export default function MinimalWhiteArch({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12 mb-20">
             {/* Bride */}
             <div className="flex flex-col items-center text-center p-8 rounded-2xl bg-white border border-[#C5A880]/20 shadow-sm">
-              <div className="w-32 h-44 rounded-t-full rounded-b-xl overflow-hidden border border-[#C5A880]/40 shadow-sm mb-6">
-                <img src={couple.bridePhoto} alt={couple.brideName} className="w-full h-full object-cover" loading="lazy" />
-              </div>
-              <h3 className="text-2xl font-serif text-[#18181B]">{couple.brideName}</h3>
+              {showCouplePhotos && couple.bridePhoto && (
+                <div className="w-32 h-44 rounded-t-full rounded-b-xl overflow-hidden border border-[#C5A880]/40 shadow-sm mb-6 bg-stone-100">
+                  <img src={couple.bridePhoto} alt={couple.brideName} className="w-full h-full object-cover" loading="lazy" />
+                </div>
+              )}
+              <h3 className="text-xl sm:text-2xl font-serif text-[#18181B] break-normal leading-snug">{couple.brideName}</h3>
               <p className="text-[10px] font-sans uppercase tracking-widest text-[#8C7355] mt-1 mb-3 font-semibold">
                 The Bride
               </p>
@@ -545,10 +547,12 @@ export default function MinimalWhiteArch({
 
             {/* Groom */}
             <div className="flex flex-col items-center text-center p-8 rounded-2xl bg-white border border-[#C5A880]/20 shadow-sm">
-              <div className="w-32 h-44 rounded-t-full rounded-b-xl overflow-hidden border border-[#C5A880]/40 shadow-sm mb-6">
-                <img src={couple.groomPhoto} alt={couple.groomName} className="w-full h-full object-cover" loading="lazy" />
-              </div>
-              <h3 className="text-2xl font-serif text-[#18181B]">{couple.groomName}</h3>
+              {showCouplePhotos && couple.groomPhoto && (
+                <div className="w-32 h-44 rounded-t-full rounded-b-xl overflow-hidden border border-[#C5A880]/40 shadow-sm mb-6 bg-stone-100">
+                  <img src={couple.groomPhoto} alt={couple.groomName} className="w-full h-full object-cover" loading="lazy" />
+                </div>
+              )}
+              <h3 className="text-xl sm:text-2xl font-serif text-[#18181B] break-normal leading-snug">{couple.groomName}</h3>
               <p className="text-[10px] font-sans uppercase tracking-widest text-[#8C7355] mt-1 mb-3 font-semibold">
                 The Groom
               </p>

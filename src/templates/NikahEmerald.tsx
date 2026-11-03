@@ -54,6 +54,7 @@ function downloadICS(title: string, desc: string, location: string, dateStr?: st
 
 export default function NikahEmerald({ data, weddingId = "wedding", isPreview }: WeddingTemplateProps) {
   const { couple, story, events, gallery, rsvpConfig, sections } = data;
+  const showCoverPhoto = sections?.showCoverPhoto !== false;
   const showCountdown = sections?.showCountdown !== false;
   const showStory = sections?.showStory !== false;
   const showGallery = sections?.showGallery !== false;
@@ -177,33 +178,35 @@ export default function NikahEmerald({ data, weddingId = "wedding", isPreview }:
         </div>
 
         {/* Moorish Arch Portrait Frame */}
-        <div className="relative w-full max-w-[310px] aspect-[4/5] p-2 bg-gradient-to-b from-[#C5A059]/40 via-[#C5A059]/20 to-[#C5A059]/10 rounded-t-[10rem] rounded-b-xl shadow-[0_16px_40px_rgba(197,160,89,0.18)] border border-[#C5A059]/40 backdrop-blur-sm hover-lift transition-all duration-500">
-          <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1 bg-[#FAF5EC] border border-[#C5A059]/40 px-3 py-0.5 rounded-full shadow-sm text-[#0F382A] font-serif text-[11px] select-none tracking-wide animate-float-gentle">
-            <span className="text-xs text-[#C5A059]">🌸</span>
-            <span>Jasmine Garland Swag</span>
-            <span className="text-xs text-[#C5A059]">🌸</span>
-          </div>
+        {showCoverPhoto && (
+          <div className="relative w-full max-w-[310px] aspect-[4/5] p-2 bg-gradient-to-b from-[#C5A059]/40 via-[#C5A059]/20 to-[#C5A059]/10 rounded-t-[10rem] rounded-b-xl shadow-[0_16px_40px_rgba(197,160,89,0.18)] border border-[#C5A059]/40 backdrop-blur-sm hover-lift transition-all duration-500">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1 bg-[#FAF5EC] border border-[#C5A059]/40 px-3 py-0.5 rounded-full shadow-sm text-[#0F382A] font-serif text-[11px] select-none tracking-wide animate-float-gentle">
+              <span className="text-xs text-[#C5A059]">🌸</span>
+              <span>Jasmine Garland Swag</span>
+              <span className="text-xs text-[#C5A059]">🌸</span>
+            </div>
 
-          <div className="relative w-full h-full rounded-t-[9.75rem] rounded-b-lg overflow-hidden bg-[#F3EFE6] shadow-inner ring-1 ring-[#C5A059]/30 group">
-            {couple.coverPhotoUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={couple.coverPhotoUrl}
-                alt={`${couple.groomName} and ${couple.brideName}`}
-                className="w-full h-full object-cover object-center transform scale-105 group-hover:scale-100 transition-transform duration-700 ease-out"
-              />
-            ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center text-xs text-[#8e786b] tracking-wider uppercase font-serif">
-                <span className="text-3xl mb-1 text-[#C5A059]">🕌</span>
-                <span>Arch Portrait</span>
+            <div className="relative w-full h-full rounded-t-[9.75rem] rounded-b-lg overflow-hidden bg-[#F3EFE6] shadow-inner ring-1 ring-[#C5A059]/30 group">
+              {couple.coverPhotoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={couple.coverPhotoUrl}
+                  alt={`${couple.groomName} and ${couple.brideName}`}
+                  className="w-full h-full object-cover object-center transform scale-105 group-hover:scale-100 transition-transform duration-700 ease-out"
+                />
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center text-xs text-[#8e786b] tracking-wider uppercase font-serif">
+                  <span className="text-3xl mb-1 text-[#C5A059]">🕌</span>
+                  <span>Arch Portrait</span>
+                </div>
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#1C1A17]/30 via-transparent to-transparent opacity-60" />
+              <div className="absolute top-3 left-1/2 -translate-x-1/2 flex items-center justify-center w-8 h-8 rounded-full bg-white/90 text-[#C5A059] shadow-md border border-[#C5A059]/30">
+                <span className="text-sm text-[#0F382A]">♥</span>
               </div>
-            )}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#1C1A17]/30 via-transparent to-transparent opacity-60" />
-            <div className="absolute top-3 left-1/2 -translate-x-1/2 flex items-center justify-center w-8 h-8 rounded-full bg-white/90 text-[#C5A059] shadow-md border border-[#C5A059]/30">
-              <span className="text-sm text-[#0F382A]">♥</span>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Live Countdown Floating Pill */}
         {showCountdown && (
