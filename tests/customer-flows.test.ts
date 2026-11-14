@@ -72,6 +72,16 @@ test('customer flow: guest RSVP opens WhatsApp with formatted ceremony greeting'
 
   for (const [id, Template] of Object.entries(TEMPLATE_REGISTRY)) {
     const html = renderToStaticMarkup(React.createElement(Template, { data, weddingId: 'w-1', isPreview: true }));
+    if (id === 'festie-rooftop') {
+      assert.match(html, /Share invitation on WhatsApp/, 'Festie Rooftop must expose its reference WhatsApp share action');
+      assert.doesNotMatch(html, /wa\.me\/919876543210/, 'Festie Rooftop sharing must not preselect the RSVP phone');
+      continue;
+    }
+    if (id === 'on-chair') {
+      assert.match(html, /Share Invitation on WhatsApp/);
+      assert.doesNotMatch(html, /wa\.me\/919876543210/, 'On Chair sharing must not preselect the RSVP phone');
+      continue;
+    }
     assert.match(html, /wa\.me\/919876543210/, `Template ${id} must contain cleaned WhatsApp link`);
     assert.match(html, /RSVP|Attendance/i, `Template ${id} must indicate RSVP / Attendance action`);
   }

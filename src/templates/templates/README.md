@@ -34,3 +34,7 @@ This folder is designed for plug-and-play AI-generated wedding templates.
    }
    ```
 4. Done! The template will instantly appear in the studio editor selector, live preview, and public invitation URLs without touching the database schema or form logic.
+
+## Festie Rooftop
+
+`festie-rooftop` is a responsive, asset-backed invitation inspired by the supplied mobile reference. Its artwork is stored in `public/templates/festie-rooftop/`, and its preview is available at `/preview/festie-rooftop`.

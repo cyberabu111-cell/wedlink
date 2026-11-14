@@ -5,8 +5,8 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { TEMPLATE_REGISTRY, TEMPLATE_METADATA } from '../src/templates/index';
 import { createEmptyWeddingData } from '../src/lib/wedding-defaults';
 
-test('template registry contains all 5 pre-built templates including bento-clay', () => {
-  const expectedTemplates = ['royal-rajwada', 'minimal-sage', 'boho-floral', 'nikah-emerald', 'bento-clay'];
+test('template registry contains the core templates and Festie Rooftop', () => {
+  const expectedTemplates = ['royal-rajwada', 'minimal-sage', 'boho-floral', 'nikah-emerald', 'bento-clay', 'festie-rooftop', 'on-chair'];
   for (const id of expectedTemplates) {
     assert.ok(TEMPLATE_REGISTRY[id], `Template ${id} must be registered`);
     assert.equal(typeof TEMPLATE_REGISTRY[id], 'function');
@@ -16,7 +16,7 @@ test('template registry contains all 5 pre-built templates including bento-clay'
 test('template metadata contains prices and display names', () => {
   assert.ok(TEMPLATE_METADATA.length >= 5);
   const ids = TEMPLATE_METADATA.map((m) => m.id);
-  for (const expected of ['royal-rajwada', 'minimal-sage', 'boho-floral', 'nikah-emerald', 'bento-clay']) {
+  for (const expected of ['royal-rajwada', 'minimal-sage', 'boho-floral', 'nikah-emerald', 'bento-clay', 'festie-rooftop', 'on-chair']) {
     assert.ok(ids.includes(expected));
   }
   for (const meta of TEMPLATE_METADATA) {
@@ -66,6 +66,49 @@ test('nikah emerald renders accurate couple data without invented family names o
   // Must NOT render hardcoded Kerala location when wedding is in Hyderabad
   assert.doesNotMatch(html, /Kerala, India/);
   assert.match(html, /Hyderabad/);
+});
+
+test('Festie Rooftop renders couple and ceremony data without sample names', () => {
+  const data = createEmptyWeddingData();
+  data.couple = {
+    brideName: 'Nadia',
+    groomName: 'Ibrahim',
+    weddingDate: '2027-01-24',
+    coverPhotoUrl: '/templates/festie-rooftop/rooftop-couple.png',
+    hashtag: '#IbrahimAndNadia',
+  };
+  data.groom = { qualification: 'Architect', fatherName: 'Groom Father' };
+  data.bride = { qualification: 'Designer', motherName: 'Bride Mother' };
+  data.events = [{
+    id: 'evt-nikah',
+    eventName: 'Nikah Ceremony',
+    date: '2027-01-24',
+    startTime: '09:30',
+    endTime: '13:00',
+    venueName: 'Community Hall',
+    venueAddress: 'Kozhikode, Kerala',
+    googleMapsUrl: '',
+  }, {
+    id: 'evt-reception',
+    eventName: 'Reception',
+    date: '2027-01-25',
+    startTime: '18:00',
+    endTime: '22:00',
+    venueName: 'Community Hall',
+    venueAddress: 'Kozhikode, Kerala',
+    googleMapsUrl: '',
+  }];
+
+  const Festie = TEMPLATE_REGISTRY['festie-rooftop'];
+  const html = renderToStaticMarkup(React.createElement(Festie, { data, weddingId: 'festie-test', isPreview: true }));
+
+  assert.match(html, /Nadia/);
+  assert.match(html, /Ibrahim/);
+  assert.match(html, /Nikah Ceremony/);
+  assert.match(html, /Community Hall/);
+  assert.match(html, /Architect/);
+  assert.match(html, /Choose a ceremony countdown/);
+  assert.doesNotMatch(html, /Rabiyath|Nusrath|Fathima Rimza|Muhammed Rahees/);
 });
 
 test('templates format date-only strings consistently without overseas timezone rollback', () => {
@@ -165,11 +208,10 @@ test('nikah emerald renders custom story and photo gallery', () => {
   assert.match(html, /https:\/\/example\.com\/photo1\.jpg/);
 });
 
-test('all 5 template IDs resolve in query parameter selection', () => {
-  const expectedTemplates = ['royal-rajwada', 'minimal-sage', 'boho-floral', 'nikah-emerald', 'bento-clay'];
+test('registered template IDs resolve in query parameter selection', () => {
+  const expectedTemplates = ['royal-rajwada', 'minimal-sage', 'boho-floral', 'nikah-emerald', 'bento-clay', 'festie-rooftop', 'on-chair'];
   for (const t of expectedTemplates) {
     const selected = t in TEMPLATE_REGISTRY ? t : 'royal-rajwada';
     assert.equal(selected, t, `Template query parameter ${t} must resolve to itself`);
   }
 });
-

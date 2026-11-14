@@ -141,6 +141,26 @@ export const TEMPLATES: TemplateDefinition[] = [
       ssr: true,
     }),
   },
+  {
+    id: "festie-rooftop",
+    name: "Festie Rooftop",
+    category: "Floral",
+    thumbnailUrl: "/thumbs/festie-rooftop.webp",
+    component: dynamic(() => import("./templates/FestieRooftop"), {
+      loading: () => TemplateLoadingFallback(),
+      ssr: true,
+    }),
+  },
+  {
+    id: "on-chair",
+    name: "On Chair",
+    category: "Modern",
+    thumbnailUrl: "/templates/on-chair/poster.jpg",
+    component: dynamic(() => import("./templates/OnChair"), {
+      loading: () => TemplateLoadingFallback(),
+      ssr: true,
+    }),
+  },
 ];
 
 export const TEMPLATE_REGISTRY: Record<string, TemplateDefinition> = TEMPLATES.reduce(

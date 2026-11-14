@@ -1,7 +1,14 @@
 'use client';
 
 import React, { useState, useEffect, useTransition, useMemo } from 'react';
-import type { WeddingData, VenueEvent } from '@/types/wedding';
+import type {
+  OnChairBlessingDetails,
+  OnChairCeremonyDetails,
+  OnChairHeroDetails,
+  OnChairPersonDetails,
+  WeddingData,
+  VenueEvent,
+} from '@/types/wedding';
 import { TEMPLATES, getTemplateComponent } from '@/templates/registry';
 import { saveWeddingDraft } from '@/app/actions/wedding';
 import { signOut } from '@/app/actions/auth';
@@ -210,6 +217,52 @@ export default function StudioEditorClient({
     setFormData((prev) => ({
       ...prev,
       couple: { ...prev.couple, [field]: value },
+    }));
+  };
+
+  const updateOnChairPerson = (
+    person: 'groom' | 'bride',
+    field: keyof OnChairPersonDetails,
+    value: string,
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      [person]: { ...prev[person], [field]: value },
+    }));
+  };
+
+  const updateOnChairHero = (field: keyof OnChairHeroDetails, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      hero: { ...prev.hero, [field]: value },
+    }));
+  };
+
+  const updateOnChairCeremony = (
+    index: number,
+    field: keyof OnChairCeremonyDetails,
+    value: string,
+  ) => {
+    setFormData((prev) => {
+      const ceremonies = [...(prev.ceremonies || [])];
+      while (ceremonies.length <= index) ceremonies.push({});
+      ceremonies[index] = { ...ceremonies[index], [field]: value };
+      return { ...prev, ceremonies };
+    });
+  };
+
+  const updateOnChairCountdown = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      hero: { ...prev.hero, daysToGo: value },
+      countdown: { ...prev.countdown, daysRemaining: value },
+    }));
+  };
+
+  const updateOnChairBlessing = (field: keyof OnChairBlessingDetails, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      blessing: { ...prev.blessing, [field]: value },
     }));
   };
 
@@ -731,6 +784,163 @@ export default function StudioEditorClient({
                   </div>
                 </div>
               </div>
+
+              {(templateId === 'on-chair' || templateId === 'festie-rooftop') && (
+                <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-4">
+                  <div>
+                    <h3 className="font-semibold text-sm text-slate-800">
+                      {templateId === 'on-chair' ? 'On Chair Details' : 'Festie Rooftop Details'}
+                    </h3>
+                    <p className="mt-1 text-[11px] text-slate-500">
+                      Optional family details and blessing text for this invitation.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {([
+                      ['groom', 'Groom'],
+                      ['bride', 'Bride'],
+                    ] as const).map(([person, label]) => (
+                      <div key={person} className="rounded-lg border border-slate-200 bg-white p-3 space-y-3">
+                        <h4 className="text-xs font-semibold text-slate-700">{label} family details</h4>
+                        <label className="block text-[11px] font-medium text-slate-600">
+                          Display name override
+                          <input
+                            type="text"
+                            value={formData[person]?.name ?? ''}
+                            onChange={(e) => updateOnChairPerson(person, 'name', e.target.value)}
+                            placeholder="Leave blank to use the couple name"
+                            className="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-xs bg-white"
+                          />
+                        </label>
+                        <label className="block text-[11px] font-medium text-slate-600">
+                          Qualification or role
+                          <input
+                            type="text"
+                            value={formData[person]?.qualification ?? ''}
+                            onChange={(e) => updateOnChairPerson(person, 'qualification', e.target.value)}
+                            placeholder="Optional"
+                            className="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-xs bg-white"
+                          />
+                        </label>
+                        <label className="block text-[11px] font-medium text-slate-600">
+                          Father&apos;s name
+                          <input
+                            type="text"
+                            value={formData[person]?.fatherName ?? ''}
+                            onChange={(e) => updateOnChairPerson(person, 'fatherName', e.target.value)}
+                            placeholder="Father's name"
+                            className="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-xs bg-white"
+                          />
+                        </label>
+                        <label className="block text-[11px] font-medium text-slate-600">
+                          Mother&apos;s name
+                          <input
+                            type="text"
+                            value={formData[person]?.motherName ?? ''}
+                            onChange={(e) => updateOnChairPerson(person, 'motherName', e.target.value)}
+                            placeholder="Mother's name"
+                            className="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-xs bg-white"
+                          />
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+
+                  {templateId === 'on-chair' && (
+                    <>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <label className="block text-[11px] font-medium text-slate-600">
+                          Background video URL
+                          <input
+                            type="text"
+                            value={formData.hero?.videoUrl ?? ''}
+                            onChange={(e) => updateOnChairHero('videoUrl', e.target.value)}
+                            placeholder="/templates/on-chair/background.mp4"
+                            className="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-xs bg-white"
+                          />
+                        </label>
+                        <label className="block text-[11px] font-medium text-slate-600">
+                          Video poster URL
+                          <input
+                            type="text"
+                            value={formData.hero?.posterUrl ?? ''}
+                            onChange={(e) => updateOnChairHero('posterUrl', e.target.value)}
+                            placeholder="/templates/on-chair/poster.jpg"
+                            className="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-xs bg-white"
+                          />
+                        </label>
+                      </div>
+                      <label className="block text-[11px] font-medium text-slate-600">
+                        Countdown days override (optional)
+                        <input
+                          type="text"
+                          value={formData.hero?.daysToGo ?? formData.countdown?.daysRemaining ?? ''}
+                          onChange={(e) => updateOnChairCountdown(e.target.value)}
+                          placeholder="Leave blank to calculate from wedding date"
+                          className="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-xs bg-white"
+                        />
+                      </label>
+                    </>
+                  )}
+                  <div className="space-y-3 border-t border-slate-200 pt-4">
+                    <h4 className="text-xs font-semibold text-slate-700">Blessing scene and closing dua</h4>
+                    <label className="block text-[11px] font-medium text-slate-600">
+                      Blessing scene message
+                      <textarea
+                        rows={3}
+                        value={formData.blessing?.message ?? ''}
+                        onChange={(e) => updateOnChairBlessing('message', e.target.value)}
+                        placeholder="Leave blank to use the template's default message."
+                        className="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-xs bg-white"
+                      />
+                    </label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <label className="block text-[11px] font-medium text-slate-600">
+                        Verse
+                        <textarea
+                          rows={2}
+                          value={formData.blessing?.verse ?? ''}
+                          onChange={(e) => updateOnChairBlessing('verse', e.target.value)}
+                          placeholder="Leave blank to use the template's default verse."
+                          className="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-xs bg-white"
+                        />
+                      </label>
+                      <label className="block text-[11px] font-medium text-slate-600">
+                        Verse reference
+                        <input
+                          type="text"
+                          value={formData.blessing?.verseReference ?? ''}
+                          onChange={(e) => updateOnChairBlessing('verseReference', e.target.value)}
+                          placeholder="Surah Ar-Rum [30:21]"
+                          className="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-xs bg-white"
+                        />
+                      </label>
+                    </div>
+                    <label className="block text-[11px] font-medium text-slate-600">
+                      Arabic closing dua
+                      <textarea
+                        rows={2}
+                        dir="rtl"
+                        value={formData.blessing?.arabicDua ?? ''}
+                        onChange={(e) => updateOnChairBlessing('arabicDua', e.target.value)}
+                        placeholder="Leave blank to use the template's default dua."
+                        className="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-xs bg-white"
+                      />
+                    </label>
+                    <label className="block text-[11px] font-medium text-slate-600">
+                      Closing blessing
+                      <textarea
+                        rows={2}
+                        value={formData.blessing?.closingMessage ?? ''}
+                        onChange={(e) => updateOnChairBlessing('closingMessage', e.target.value)}
+                        placeholder="Leave blank to use the template's default blessing."
+                        className="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-xs bg-white"
+                      />
+                    </label>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -972,6 +1182,98 @@ export default function StudioEditorClient({
                     </div>
                   </div>
                 ))
+              )}
+
+              {templateId === 'on-chair' && (
+                <div className="space-y-4 rounded-xl border border-slate-200 bg-slate-50 p-5">
+                  <div>
+                    <h3 className="font-semibold text-sm text-slate-800">On Chair Ceremony Cards</h3>
+                    <p className="mt-1 text-[11px] text-slate-500">
+                      These optional display fields customize the two compact cards in scene four.
+                    </p>
+                  </div>
+                  {[0, 1].map((index) => {
+                    const ceremony = formData.ceremonies?.[index] ?? {};
+                    const label = index === 0 ? 'First ceremony card' : 'Second ceremony card';
+                    return (
+                      <div key={index} className="space-y-3 rounded-lg border border-slate-200 bg-white p-4">
+                        <h4 className="text-xs font-semibold text-slate-700">{label}</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <label className="block text-[11px] font-medium text-slate-600">
+                            Heading
+                            <input
+                              type="text"
+                              value={ceremony.title ?? ''}
+                              onChange={(e) => updateOnChairCeremony(index, 'title', e.target.value)}
+                              placeholder="Nikah Ceremony"
+                              className="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-xs bg-white"
+                            />
+                          </label>
+                          <label className="block text-[11px] font-medium text-slate-600">
+                            Subtitle
+                            <input
+                              type="text"
+                              value={ceremony.subtitle ?? ''}
+                              onChange={(e) => updateOnChairCeremony(index, 'subtitle', e.target.value)}
+                              placeholder="Nikah & Lunch Reception"
+                              className="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-xs bg-white"
+                            />
+                          </label>
+                          <label className="block text-[11px] font-medium text-slate-600">
+                            Date and weekday
+                            <input
+                              type="text"
+                              value={ceremony.dateText ?? ''}
+                              onChange={(e) => updateOnChairCeremony(index, 'dateText', e.target.value)}
+                              placeholder="22nd October 2026 · Thursday"
+                              className="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-xs bg-white"
+                            />
+                          </label>
+                          <label className="block text-[11px] font-medium text-slate-600">
+                            Hijri date
+                            <input
+                              type="text"
+                              value={ceremony.hijriDate ?? ''}
+                              onChange={(e) => updateOnChairCeremony(index, 'hijriDate', e.target.value)}
+                              placeholder="10 Rabi'ul Akhir 1448"
+                              className="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-xs bg-white"
+                            />
+                          </label>
+                          <label className="block text-[11px] font-medium text-slate-600">
+                            Time
+                            <input
+                              type="text"
+                              value={ceremony.timeText ?? ''}
+                              onChange={(e) => updateOnChairCeremony(index, 'timeText', e.target.value)}
+                              placeholder="9:30 AM IST"
+                              className="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-xs bg-white"
+                            />
+                          </label>
+                          <label className="block text-[11px] font-medium text-slate-600">
+                            Venue name
+                            <input
+                              type="text"
+                              value={ceremony.venueName ?? ''}
+                              onChange={(e) => updateOnChairCeremony(index, 'venueName', e.target.value)}
+                              placeholder="Salavath Juma Masjid"
+                              className="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-xs bg-white"
+                            />
+                          </label>
+                        </div>
+                        <label className="block text-[11px] font-medium text-slate-600">
+                          Venue address
+                          <input
+                            type="text"
+                            value={ceremony.venueAddress ?? ''}
+                            onChange={(e) => updateOnChairCeremony(index, 'venueAddress', e.target.value)}
+                            placeholder="Area, city, region"
+                            className="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-xs bg-white"
+                          />
+                        </label>
+                      </div>
+                    );
+                  })}
+                </div>
               )}
             </div>
           )}

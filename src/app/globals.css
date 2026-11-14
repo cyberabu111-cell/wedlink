@@ -1,5 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..700;1,400..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;600;700&family=Great+Vibes&family=Playfair+Display:ital,wght@0,400..700;1,400..700&display=swap');
 @import "tailwindcss";
+
+.font-script {
+  font-family: 'Dancing Script', 'Great Vibes', cursive;
+}
 
 :root { color-scheme: light; }
 body { margin: 0; background: #f8f5f0; color: #282c28; font-family: Arial, Helvetica, sans-serif; }
@@ -135,6 +139,8 @@ h1, h2 { font-family: Georgia, 'Times New Roman', serif; font-weight: 400; }
 :root { --ink: #382c35; --muted: #786b70; --paper: #faf7f2; --plum: #663c51; --line: #e6ddd7; }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
+html.festie-preview-no-scrollbar { scrollbar-width: none; }
+html.festie-preview-no-scrollbar::-webkit-scrollbar { display: none; }
 button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
 button { cursor: pointer; }
 button:disabled { cursor: wait; opacity: .6; }

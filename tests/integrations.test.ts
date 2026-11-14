@@ -109,8 +109,29 @@ test("manual location edits invalidate old pins and still satisfy WeddingData", 
 test("all registered templates render accessible event actions and tolerate blank event drafts", () => {
   const data = createEmptyWeddingData();
   data.events = [event];
-  for (const Template of Object.values(TEMPLATE_REGISTRY)) {
+  for (const [id, Template] of Object.entries(TEMPLATE_REGISTRY)) {
     const html = renderToStaticMarkup(React.createElement(Template, { data, weddingId: "wedding-1", isPreview: true }));
+    if (id === "festie-rooftop") {
+      assert.match(html, /Track Location/);
+      assert.match(html, /Save to Calendar/);
+      assert.match(html, /calendar\.google\.com/);
+      const draft = renderToStaticMarkup(React.createElement(Template, {
+        data: { ...data, events: [{ ...event, date: "" }] }, weddingId: "wedding-1", isPreview: true,
+      }));
+      assert.doesNotMatch(draft, /calendar\.google\.com/);
+      assert.match(draft, /Date to be announced/);
+      continue;
+    }
+    if (id === "on-chair") {
+      assert.match(html, /Track Location/);
+      assert.match(html, /Save to Calendar/);
+      assert.match(html, /calendar\.google\.com/);
+      const draft = renderToStaticMarkup(React.createElement(Template, {
+        data: { ...data, events: [{ ...event, date: "" }] }, weddingId: "wedding-1", isPreview: true,
+      }));
+      assert.doesNotMatch(draft, /calendar\.google\.com/);
+      continue;
+    }
     assert.match(html, /Get directions/);
     assert.match(html, /Add to calendar/);
     assert.match(html, /calendar.google.com/);

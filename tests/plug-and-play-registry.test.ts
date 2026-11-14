@@ -63,7 +63,12 @@ test("registry: all entries contain id, name, category, thumbnailUrl, and compon
     assert.ok(typeof entry.id === "string" && entry.id.length > 0, "id must be non-empty string");
     assert.ok(typeof entry.name === "string" && entry.name.length > 0, "name must be non-empty string");
     assert.ok(validCategories.includes(entry.category), `category ${entry.category} must be one of allowed categories`);
-    assert.ok(typeof entry.thumbnailUrl === "string" && entry.thumbnailUrl.startsWith("/thumbs/"), "thumbnailUrl must be valid path");
+    assert.ok(
+      typeof entry.thumbnailUrl === "string" &&
+        entry.thumbnailUrl.startsWith("/") &&
+        !entry.thumbnailUrl.startsWith("//"),
+      "thumbnailUrl must be a site-relative path",
+    );
     assert.ok(entry.component, `component for ${entry.id} must be defined`);
   }
 });

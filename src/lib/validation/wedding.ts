@@ -6,6 +6,10 @@ const shortText = z.string().max(200);
 const date = z.iso.date();
 const time = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
 const webUrl = z.url().refine((value) => /^https?:\/\//.test(value), "Use an HTTP or HTTPS URL");
+const mediaSource = z.string().max(2_000).refine(
+  (value) => value === "" || /^https?:\/\//i.test(value) || (value.startsWith("/") && !value.startsWith("//")),
+  "Use an HTTP(S) URL or a site-relative path",
+);
 const draftDate = z.union([z.literal(""), date]);
 const draftTime = z.union([z.literal(""), time]);
 const draftUrl = z.union([z.literal(""), webUrl]);
@@ -68,6 +72,42 @@ export const weddingDataSchema = z.object({
     askDietaryPreference: z.boolean(),
     whatsappNumber: z.string().regex(/^(?:\+?[1-9]\d{6,14})?$/).optional(),
   }).strict(),
+  groom: z.object({
+    name: shortText.optional(),
+    qualification: shortText.optional(),
+    fatherName: shortText.optional(),
+    motherName: shortText.optional(),
+  }).strict().optional(),
+  bride: z.object({
+    name: shortText.optional(),
+    qualification: shortText.optional(),
+    fatherName: shortText.optional(),
+    motherName: shortText.optional(),
+  }).strict().optional(),
+  ceremonies: z.array(z.object({
+    title: shortText.optional(),
+    subtitle: shortText.optional(),
+    dateText: shortText.optional(),
+    hijriDate: shortText.optional(),
+    timeText: shortText.optional(),
+    venueName: shortText.optional(),
+    venueAddress: z.string().max(2_000).optional(),
+  }).strict()).max(2).optional(),
+  hero: z.object({
+    videoUrl: mediaSource.optional(),
+    posterUrl: mediaSource.optional(),
+    daysToGo: shortText.optional(),
+  }).strict().optional(),
+  countdown: z.object({
+    daysRemaining: shortText.optional(),
+  }).strict().optional(),
+  blessing: z.object({
+    message: text.optional(),
+    verse: text.optional(),
+    verseReference: shortText.optional(),
+    arabicDua: text.optional(),
+    closingMessage: text.optional(),
+  }).strict().optional(),
   sections: z.object({
     showCoverPhoto: z.boolean().optional(),
     showCouplePhotos: z.boolean().optional(),

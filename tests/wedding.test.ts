@@ -18,6 +18,34 @@ test("reject invalid dates, unsafe URLs and extra data fields", () => {
   assert.equal(weddingDataSchema.safeParse({ ...draft, gallery: ["javascript:alert(1)"] }).success, false);
 });
 
+test("On Chair template details are accepted and media URLs remain constrained", () => {
+  const draft = createEmptyWeddingData();
+  const customized = {
+    ...draft,
+    groom: { name: "Rabiyath", fatherName: "Father", motherName: "Mother" },
+    bride: { name: "Nusrath", fatherName: "Father", motherName: "Mother" },
+    ceremonies: [{ title: "Nikah" }, { venueName: "Masjid" }],
+    hero: {
+      videoUrl: "/templates/on-chair/background.mp4",
+      posterUrl: "https://example.com/poster.jpg",
+      daysToGo: "07",
+    },
+    countdown: { daysRemaining: "07" },
+    blessing: {
+      message: "Blessings",
+      verse: "Verse",
+      verseReference: "Reference",
+      arabicDua: "Dua",
+      closingMessage: "Closing",
+    },
+  };
+  assert.equal(weddingDataSchema.safeParse(customized).success, true);
+  assert.equal(weddingDataSchema.safeParse({
+    ...customized,
+    hero: { ...customized.hero, videoUrl: "//example.com/video.mp4" },
+  }).success, false);
+});
+
 test("reject duplicate event IDs and incomplete coordinates", () => {
   const event = { id: "nikah", eventName: "Nikah", date: "2026-12-14", startTime: "10:00", endTime: "12:00", venueName: "Hall", venueAddress: "Thrissur", googleMapsUrl: "https://maps.google.com/" };
   assert.equal(weddingDataSchema.safeParse({ ...createEmptyWeddingData(), events: [event] }).success, true);

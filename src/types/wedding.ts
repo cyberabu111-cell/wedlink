@@ -13,6 +13,37 @@ export interface VenueEvent {
   dressCode?: string;         // e.g., "Traditional Yellow"
 }
 
+export interface OnChairPersonDetails {
+  name?: string;
+  qualification?: string;
+  fatherName?: string;
+  motherName?: string;
+}
+
+export interface OnChairCeremonyDetails {
+  title?: string;
+  subtitle?: string;
+  dateText?: string;
+  hijriDate?: string;
+  timeText?: string;
+  venueName?: string;
+  venueAddress?: string;
+}
+
+export interface OnChairHeroDetails {
+  videoUrl?: string;
+  posterUrl?: string;
+  daysToGo?: string;
+}
+
+export interface OnChairBlessingDetails {
+  message?: string;
+  verse?: string;
+  verseReference?: string;
+  arabicDua?: string;
+  closingMessage?: string;
+}
+
 export interface WeddingData {
   couple: {
     brideName: string;
@@ -44,6 +75,12 @@ export interface WeddingData {
     askDietaryPreference: boolean;
     whatsappNumber?: string;  // Optional: also send RSVP via WhatsApp
   };
+  groom?: OnChairPersonDetails;
+  bride?: OnChairPersonDetails;
+  ceremonies?: OnChairCeremonyDetails[];
+  hero?: OnChairHeroDetails;
+  countdown?: { daysRemaining?: string };
+  blessing?: OnChairBlessingDetails;
   sections?: {
     showCoverPhoto?: boolean;
     showCouplePhotos?: boolean;
